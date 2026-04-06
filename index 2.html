@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="auto">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<title>FitApp</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#f5f4f0;--bg2:#ebe9e3;--surface:#fff;--surface2:#f0eee9;--border:#d8d5cd;--text:#1a1917;--text2:#6b6860;--accent:#e8501a;--accent-bg:#fde8e0;--green:#2d8a4e;--green-bg:#e0f5e9;--blue:#1a6fb5;--blue-bg:#ddeeff;--yellow:#c47d00;--yellow-bg:#fff3d0;--purple:#7c3aed;--purple-bg:#ede9fe;--shadow:0 2px 12px rgba(0,0,0,.08);--shadow-lg:0 8px 32px rgba(0,0,0,.14);--radius:16px;--radius-sm:10px;--nav-h:72px;--header-h:56px;--font-display:'Syne',sans-serif;--font-body:'DM Sans',sans-serif;--transition:.2s ease}
+[data-theme=dark]{--bg:#111210;--bg2:#1a1917;--surface:#222220;--surface2:#2a2927;--border:#3a3835;--text:#f0ede8;--text2:#8a8780;--accent:#ff6a35;--accent-bg:#3a1a0e;--green:#3dba68;--green-bg:#0e2e1a;--blue:#4a9ee0;--blue-bg:#0e2035;--yellow:#f0a830;--yellow-bg:#2a1e00;--purple:#a78bfa;--purple-bg:#2e1065;--shadow:0 2px 12px rgba(0,0,0,.4);--shadow-lg:0 8px 32px rgba(0,0,0,.6)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100dvh;overflow:hidden;-webkit-font-smoothing:antialiased}
+#app{display:flex;flex-direction:column;height:100dvh;max-width:480px;margin:0 auto;position:relative;background:var(--bg)}
+@media(min-width:768px){body{background:var(--bg2)}#app{margin:24px auto;height:calc(100dvh - 48px);border-radius:28px;overflow:hidden;box-shadow:var(--shadow-lg)}}
+.app-header{display:flex;align-items:center;justify-content:space-between;height:var(--header-h);padding:0 16px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;z-index:10}
+.app-logo{font-family:var(--font-display);font-size:20px;font-weight:800;color:var(--accent);letter-spacing:-.5px}
+.header-right{display:flex;gap:4px}
+.page-container{flex:1;overflow:hidden;position:relative}
+.page{position:absolute;inset:0;overflow-y:auto;padding:16px 16px calc(16px + var(--nav-h));opacity:0;pointer-events:none;transform:translateY(8px);transition:opacity var(--transition),transform var(--transition);-webkit-overflow-scrolling:touch}
+.page.active{opacity:1;pointer-events:all;transform:translateY(0)}
+.bottom-nav{position:absolute;bottom:0;left:0;right:0;height:var(--nav-h);display:flex;background:var(--surface);border-top:1px solid var(--border);z-index:10;padding-bottom:env(safe-area-inset-bottom,0)}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:none;border:none;cursor:pointer;color:var(--text2);transition:color var(--transition);padding:8px 4px}
+.nav-btn.active{color:var(--accent)}
+.nav-icon{font-size:22px;line-height:1}
+.nav-label{font-family:var(--font-body);font-size:11px;font-weight:500}
+.section-title{font-family:var(--font-display);font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text2);margin:20px 0 10px}
+.card{background:var(--surface);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);margin-bottom:12px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 18px;border-radius:var(--radius-sm);border:none;font-family:var(--font-body);font-size:14px;font-weight:500;cursor:pointer;transition:var(--transition)}
+.btn-accent{background:var(--accent);color:#fff}
+.btn-outline{background:transparent;color:var(--text);border:1.5px solid var(--border)}
+.btn-sm{padding:6px 12px;font-size:13px}
+.icon-btn{background:var(--surface2);border:none;border-radius:8px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text)}
+.badge{display:inline-block;padding:3px 9px;border-radius:100px;font-size:12px;font-weight:600}
+.badge-accent{background:var(--accent-bg);color:var(--accent)}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px)}
+.modal-overlay.hidden{display:none}
+.modal-box{background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:480px;max-height:90dvh;overflow-y:auto;padding:20px;animation:slideUp .25s ease}
+@keyframes slideUp{from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+
+/* SU SAYACI */
+.water-card{background:linear-gradient(135deg,var(--blue),#4facfe);color:#fff;padding:20px;border-radius:var(--radius);text-align:center;margin-bottom:12px;box-shadow:var(--shadow)}
+.water-controls{display:flex;align-items:center;justify-content:center;gap:20px;margin-top:10px}
+.water-btn{background:rgba(255,255,255,.2);border:none;color:#fff;width:40px;height:40px;border-radius:50%;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:var(--transition)}
+.water-btn:active{transform:scale(.9);background:rgba(255,255,255,.3)}
+
+/* PROFIL FOTOĞRAFLARI */
+.photo-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0}
+.photo-box{background:var(--bg2);border:2px dashed var(--border);border-radius:var(--radius-sm);aspect-ratio:3/4;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;position:relative;cursor:pointer}
+.photo-box img{width:100%;height:100%;object-fit:cover}
+.photo-label{font-size:11px;font-weight:700;color:var(--text2);margin-top:4px}
+
+/* DİĞER STİLLER (Özetlenmiş) */
+.macro-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.macro-card{background:var(--surface);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow)}
+.prog-wrap{background:var(--bg2);border-radius:100px;height:7px;overflow:hidden;margin-top:6px}
+.prog-fill{height:100%;transition:width .5s ease}
+.bmr-banner{background:linear-gradient(135deg,var(--accent),var(--yellow));border-radius:var(--radius);padding:16px;color:#fff;margin-bottom:12px}
+.flex-between{display:flex;justify-content:space-between;align-items:center}
+.text-muted{color:var(--text2);font-size:13px}
+.mt-8{margin-top:8px}
+.form-group{margin-bottom:14px}
+.form-input{width:100%;padding:10px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text)}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="app-header">
+    <div class="header-left"><span class="app-logo">⚡ FitApp</span></div>
+    <div class="header-right">
+      <button id="themeToggle" class="icon-btn">🔄</button>
+      <button id="exportBtn" class="icon-btn">⬆️</button>
+      <button id="importBtn" class="icon-btn">⬇️</button>
+      <input type="file" id="importFile" accept=".json" style="display:none"/>
+    </div>
+  </header>
+  <main class="page-container">
+    <div id="page-genel" class="page active"></div>
+    <div id="page-spor" class="page"></div>
+    <div id="page-tarifler" class="page"></div>
+    <div id="page-alisveris" class="page"></div>
+  </main>
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-page="genel"><span class="nav-icon">🏠</span><span class="nav-label">Genel</span></button>
+    <button class="nav-btn" data-page="spor"><span class="nav-icon">💪</span><span class="nav-label">Spor</span></button>
+    <button class="nav-btn" data-page="tarifler"><span class="nav-icon">🍽️</span><span class="nav-label">Tarifler</span></button>
+    <button class="nav-btn" data-page="alisveris"><span class="nav-icon">🛒</span><span class="nav-label">Alışveriş</span></button>
+  </nav>
+</div>
+
+<div id="modalOverlay" class="modal-overlay hidden">
+  <div id="modalBox" class="modal-box">
+    <div class="modal-header"><h3 id="modalTitle"></h3><button id="modalClose" class="icon-btn">✕</button></div>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+const Store = (() => {
+  const KEY = 'fitapp_data';
+  const def = {
+    macros:{kalori:2200,protein:160,karbonhidrat:250,yag:65},
+    profil:{ad:'',kilo:'',boy:'',yas:'',cinsiyet:'Erkek',aktivite:'1.55',hedef:'koruma',fotoIlk:null,fotoSon:null},
+    suTakibi:{},
+    ogunGecmisi:{},
+    settings:{theme:'auto'}
+  };
+  return {
+    load: () => JSON.parse(localStorage.getItem(KEY)) || JSON.parse(JSON.stringify(def)),
+    save: (d) => localStorage.setItem(KEY, JSON.stringify(d)),
+    today: () => new Date().toLocaleDateString('tr-TR')
+  };
+})();
+
+const Modal = {
+  open: (title, html) => {
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('modalBody').innerHTML = html;
+    document.getElementById('modalOverlay').classList.remove('hidden');
+  },
+  close: () => document.getElementById('modalOverlay').classList.add('hidden')
+};
+
+const PageGenel = {
+  render: (data) => {
+    const el = document.getElementById('page-genel');
+    const bugun = Store.today();
+    const p = data.profil;
+    const bugunSu = data.suTakibi[bugun] || 0;
+
+    el.innerHTML = `
+      <div class="flex-between">
+        <div>
+          <div style="font-family:var(--font-display);font-size:24px;font-weight:800;line-height:1.1">${p.ad ? 'Merhaba,<br>'+p.ad+'! 👋' : 'FitApp 👋'}</div>
+          <div class="text-muted mt-8">${bugun}</div>
+        </div>
+        <button class="btn btn-outline btn-sm" id="editProfilBtn">✏️ Profil</button>
+      </div>
+
+      <div class="bmr-banner">
+        <div style="font-size:13px;opacity:.8;text-transform:uppercase;font-weight:700">🎯 Hedef Kalori</div>
+        <div style="font-size:28px;font-weight:800">${data.macros.kalori} kcal</div>
+      </div>
+
+      <div class="water-card">
+        <div style="font-size:12px;opacity:.9;text-transform:uppercase;font-weight:700">💧 Günlük Su Takibi</div>
+        <div style="font-size:32px;font-weight:800;margin:5px 0">${bugunSu} <span style="font-size:16px;font-weight:400">Bardak</span></div>
+        <div class="water-controls">
+          <button class="water-btn" id="decWater">−</button>
+          <div style="font-size:24px">🥛</div>
+          <button class="water-btn" id="incWater">+</button>
+        </div>
+      </div>
+
+      <div class="section-title">Makrolar</div>
+      <div class="macro-grid">
+        <div class="macro-card">
+          <div style="font-size:12px;color:var(--text2)">Protein</div>
+          <div style="font-size:20px;font-weight:800;color:var(--blue)">${data.macros.protein}g</div>
+          <div class="prog-wrap"><div class="prog-fill" style="width:60%;background:var(--blue)"></div></div>
+        </div>
+        <div class="macro-card">
+          <div style="font-size:12px;color:var(--text2)">Yağ</div>
+          <div style="font-size:20px;font-weight:800;color:var(--green)">${data.macros.yag}g</div>
+          <div class="prog-wrap"><div class="prog-fill" style="width:40%;background:var(--green)"></div></div>
+        </div>
+      </div>
+
+      <div class="section-title">Gelişim Fotoğrafları</div>
+      <div class="photo-grid">
+        <div class="photo-box">
+          ${p.fotoIlk ? `<img src="${p.fotoIlk}">` : '<span style="font-size:20px">📷</span>'}
+          <div class="photo-label">İLK HALİ</div>
+        </div>
+        <div class="photo-box">
+          ${p.fotoSon ? `<img src="${p.fotoSon}">` : '<span style="font-size:20px">📷</span>'}
+          <div class="photo-label">SON HALİ</div>
+        </div>
+      </div>
+    `;
+
+    // Events
+    el.querySelector('#editProfilBtn').onclick = () => openProfil(data);
+    el.querySelector('#incWater').onclick = () => {
+      data.suTakibi[bugun] = (data.suTakibi[bugun] || 0) + 1;
+      Store.save(data); PageGenel.render(data);
+    };
+    el.querySelector('#decWater').onclick = () => {
+      if(data.suTakibi[bugun] > 0) {
+        data.suTakibi[bugun]--;
+        Store.save(data); PageGenel.render(data);
+      }
+    };
+  }
+};
+
+function openProfil(data) {
+  const p = data.profil;
+  Modal.open('Profil Düzenle', `
+    <div class="form-group">
+      <label class="text-muted">Adınız</label>
+      <input type="text" id="pAd" class="form-input" value="${p.ad}">
+    </div>
+    <div class="section-title">Değişim Fotoğrafları</div>
+    <div class="photo-grid">
+      <div class="photo-box" onclick="document.getElementById('fIlk').click()">
+        ${p.fotoIlk ? `<img src="${p.fotoIlk}">` : '<span>➕</span>'}
+        <div class="photo-label">İLK HALİ</div>
+        <input type="file" id="fIlk" hidden accept="image/*">
+      </div>
+      <div class="photo-box" onclick="document.getElementById('fSon').click()">
+        ${p.fotoSon ? `<img src="${p.fotoSon}">` : '<span>➕</span>'}
+        <div class="photo-label">SON HALİ</div>
+        <input type="file" id="fSon" hidden accept="image/*">
+      </div>
+    </div>
+    <button class="btn btn-accent btn-full mt-8" id="saveProfil">Kaydet</button>
+  `);
+
+  const handleImg = (inputId, key) => {
+    document.getElementById(inputId).onchange = (e) => {
+      const reader = new FileReader();
+      reader.onload = (re) => { 
+        data.profil[key] = re.target.result; 
+        Store.save(data); 
+        openProfil(data); 
+      };
+      if(e.target.files[0]) reader.readAsDataURL(e.target.files[0]);
+    };
+  };
+  handleImg('fIlk', 'fotoIlk');
+  handleImg('fSon', 'fotoSon');
+
+  document.getElementById('saveProfil').onclick = () => {
+    data.profil.ad = document.getElementById('pAd').value;
+    Store.save(data);
+    Modal.close();
+    PageGenel.render(data);
+  };
+}
+
+// Init
+document.addEventListener('DOMContentLoaded', () => {
+  const data = Store.load();
+  PageGenel.render(data);
+  document.getElementById('modalClose').onclick = () => Modal.close();
+  
+  // Navigasyon basit mantığı
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      alert(btn.dataset.page + " sayfası hazır değil, ama Su Sayacı Genel sayfasında aktif!");
+    };
+  });
+});
+</script>
+</body>
+</html>
