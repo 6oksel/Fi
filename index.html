@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="light">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<link rel="apple-touch-icon" id="ati" sizes="180x180" href=""/>
+<link rel="icon" id="favi" type="image/png" href=""/>
+<title>FitApp</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Nunito+Sans:wght@300;400;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px}
+body{font-family:'Nunito',sans-serif;background:#f2f2f2;color:#1a1a1a;min-height:100dvh;overflow:hidden;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+#app{display:flex;flex-direction:column;height:100dvh;max-width:430px;margin:0 auto;position:relative;background:#f2f2f2;overflow:hidden}
+@media(min-width:768px){body{background:#aaa;display:flex;align-items:center;justify-content:center}#app{height:calc(100dvh - 40px);max-height:900px;border-radius:32px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.3)}}
+/* HEADER */
+.app-header{display:flex;align-items:center;gap:10px;background:#fff;padding:10px 14px;flex-shrink:0;border-bottom:1px solid #f0f0f0}
+.hlogo{width:40px;height:40px;flex-shrink:0;border-radius:9px;overflow:hidden}
+.hlogo svg{width:40px;height:40px;display:block}
+.hname{font-size:14px;font-weight:800;color:#1a1a1a;flex:1}
+.hstats{display:flex;gap:14px;flex-shrink:0;align-items:center}
+.hstat{text-align:center;line-height:1}
+.hstat-val{font-size:16px;font-weight:900;color:#1a1a1a}
+.hstat-lbl{font-size:9px;color:#bbb;font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-top:1px}
+.hsbtn{background:none;border:none;cursor:pointer;color:#bbb;padding:4px;display:flex}
+.hpbar{height:3px;background:#f0f0f0;flex-shrink:0}
+.hpbar-fill{height:100%;background:linear-gradient(90deg,#c8f500,#aadd00);border-radius:0 2px 2px 0;transition:width .6s ease;min-width:0}
+/* NAV */
+.bottom-nav{position:absolute;bottom:0;left:0;right:0;height:68px;display:flex;align-items:flex-start;background:#fff;border-top:1px solid #f0f0f0;z-index:20;padding:8px 4px 0;padding-bottom:env(safe-area-inset-bottom,0)}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;padding:4px 2px}
+.niw{width:40px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:100px;transition:background .2s}
+.nav-btn.active .niw{background:#c8f500;box-shadow:0 3px 10px rgba(200,245,0,.5)}
+.ni{font-size:17px;line-height:1}
+.nl{font-size:10px;font-weight:700;letter-spacing:.03em;color:#bbb}
+.nav-btn.active .nl{color:#7aaa00}
+/* PAGES */
+.page-container{flex:1;overflow:hidden;position:relative}
+.page{position:absolute;inset:0;overflow-y:auto;opacity:0;pointer-events:none;transform:translateY(5px);transition:opacity .2s ease,transform .2s ease;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:calc(10px + 68px)}
+.page::-webkit-scrollbar{display:none}
+.page.active{opacity:1;pointer-events:all;transform:translateY(0)}
+/* MODAL */
+.mov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.mov.hidden{display:none}
+.mb{background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:430px;max-height:92dvh;overflow-y:auto;padding:20px 18px calc(20px + env(safe-area-inset-bottom,0));box-shadow:0 -8px 40px rgba(0,0,0,.15);animation:sU .22s cubic-bezier(.4,0,.2,1);scrollbar-width:none}
+.mb::-webkit-scrollbar{display:none}
+@keyframes sU{from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1}}
+.mh{width:32px;height:4px;background:#e0e0e0;border-radius:2px;margin:0 auto 14px;display:block}
+.mhd{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.mt{font-size:19px;font-weight:900}
+/* DIALOG */
+.dov{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:flex;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.db{background:#fff;border-radius:20px;padding:22px;width:100%;max-width:300px;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.dbt{font-size:17px;font-weight:900;margin-bottom:6px}
+.dbm{font-size:13px;color:#aaa;line-height:1.6;margin-bottom:16px}
+.dbb{display:flex;gap:10px}.dbb .btn{flex:1}
+/* FORMS */
+.fg{margin-bottom:14px}
+.fl{display:block;font-size:12px;font-weight:800;color:#aaa;margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em}
+.fi,.fs,.fta{width:100%;padding:11px 13px;background:#f8f8f8;border:1.5px solid #e8e8e8;border-radius:10px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:600;color:#1a1a1a;outline:none;transition:border-color .2s;-webkit-appearance:none}
+.fi:focus,.fs:focus,.fta:focus{border-color:#aadd00}
+.fta{resize:vertical;min-height:80px}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fr3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:11px 18px;border-radius:100px;border:none;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;cursor:pointer;transition:transform .15s,opacity .15s;white-space:nowrap;-webkit-tap-highlight-color:transparent}
+.btn:active{transform:scale(.96);opacity:.88}
+.bl{background:linear-gradient(135deg,#c8f500,#aadd00);color:#1a1a1a;box-shadow:0 4px 14px rgba(200,245,0,.4)}
+.bo{background:transparent;color:#1a1a1a;border:1.5px solid #e0e0e0}
+.bd{background:#ff4d4d;color:#fff}
+.bsm{padding:6px 13px;font-size:12px}
+.bf{width:100%;border-radius:10px}
+.ib{background:#f4f4f4;border:none;border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;color:#1a1a1a;flex-shrink:0}
+.ibox{background:rgba(200,245,0,.1);border:1px solid #aadd00;border-radius:10px;padding:11px;font-size:13px;color:#7aaa00;line-height:1.6;margin-bottom:11px}
+/* BADGE */
+.badge{display:inline-block;padding:3px 9px;border-radius:100px;font-size:11px;font-weight:800}
+.blime{background:rgba(200,245,0,.15);color:#7aaa00;border:1px solid #aadd00}
+.bgreen{background:rgba(92,184,0,.12);color:#5cb800}
+.bred{background:rgba(255,77,77,.12);color:#ff4d4d}
+.bblue{background:rgba(74,158,224,.12);color:#4a9ee0}
+.bgray{background:#f0f0f0;color:#aaa}
+.bpurp{background:rgba(139,92,246,.12);color:#8b5cf6}
+/* SETTINGS - with proper padding */
+.page-inner{padding:0 16px}
+.ss{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#bbb;margin:16px 16px 8px}
+.si{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f0f0f0;cursor:pointer}
+.si:last-child{border-bottom:none}
+.sil{display:flex;align-items:center;gap:10px}
+.sic{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.slbl{font-size:14px;font-weight:700}
+.sdesc{font-size:11px;color:#bbb}
+.tog{width:44px;height:24px;background:#e0e0e0;border-radius:100px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;border:none;padding:0}
+.tog.on{background:#aadd00}
+.tog::after{content:'';position:absolute;width:18px;height:18px;background:#fff;border-radius:50%;top:3px;left:3px;transition:transform .2s;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.tog.on::after{transform:translateX(20px)}
+/* DRAG */
+.drit{display:flex;align-items:center;gap:10px;background:#fff;border-radius:10px;padding:11px 12px;margin-bottom:7px;box-shadow:0 2px 8px rgba(0,0,0,.06);touch-action:none;user-select:none}
+.drit.dragging{box-shadow:0 8px 24px rgba(0,0,0,.12);opacity:.9;transform:scale(1.02)}
+.drh{color:#ccc;font-size:16px;flex-shrink:0}
+/* HIST */
+.hcard{background:#fff;border-radius:10px;padding:11px 13px;margin-bottom:7px;box-shadow:0 2px 8px rgba(0,0,0,.06);display:flex;align-items:center;justify-content:space-between}
+/* EX */
+.exc{background:#fff;border-radius:14px;padding:14px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.spill{background:#f4f4f4;border-radius:8px;padding:7px 5px;text-align:center;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid transparent;transition:all .18s;line-height:1.3}
+.spill.done{background:rgba(200,245,0,.15);color:#7aaa00;border-color:#aadd00}
+/* RECIPE */
+.rc{background:#fff;border-radius:14px;padding:14px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,.06);cursor:pointer;transition:transform .18s}
+.rc:active{transform:scale(.98)}
+/* SHOP */
+.shi{display:flex;align-items:center;gap:11px;background:#fff;border-radius:10px;padding:11px 13px;margin-bottom:7px;box-shadow:0 2px 8px rgba(0,0,0,.06);transition:opacity .2s}
+.shi.checked{opacity:.4}
+.shi.checked .shn{text-decoration:line-through}
+.shck{width:22px;height:22px;border-radius:50%;border:2.5px solid #e0e0e0;flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.shck.checked{background:#aadd00;border-color:#aadd00;font-size:12px}
+/* MISC */
+.finh{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;left:0;top:0}
+.fslot{cursor:pointer}
+.es{text-align:center;padding:36px 20px;color:#bbb}
+.ei{font-size:44px;margin-bottom:10px}
+.ett{font-size:17px;font-weight:900;color:#1a1a1a;margin-bottom:6px}
+.ed{font-size:13px;line-height:1.6}
+.tdisp{font-size:50px;font-weight:900;letter-spacing:-2px;text-align:center;line-height:1}
+.tpresets{display:flex;gap:6px;justify-content:center;margin-top:8px;flex-wrap:wrap}
+.tpb{background:rgba(200,245,0,.15);border:1.5px solid #aadd00;border-radius:100px;padding:5px 11px;font-size:12px;font-weight:800;cursor:pointer;color:#7aaa00;font-family:'Nunito',sans-serif}
+.mrow{cursor:pointer}
+.card{background:#fff;border-radius:14px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,.06);margin-bottom:10px}
+.st{font-size:14px;font-weight:800;color:#1a1a1a;margin-bottom:8px}
+.tm{color:#aaa;font-size:12px}
+.mbb{background:#ebebeb;border-radius:100px;height:6px;overflow:hidden}
+.mbf{height:100%;border-radius:100px;transition:width .5s ease}
+.flex{display:flex}.fb{display:flex;justify-content:space-between;align-items:center}
+.g8{gap:8px}.mt8{margin-top:8px}.mt12{margin-top:12px}
+
+/* ========== DARK MODE - comprehensive ========== */
+[data-theme=dark]{color-scheme:dark}
+[data-theme=dark] body,[data-theme=dark] #app{background:#111;color:#f0f0f0}
+[data-theme=dark] .app-header{background:#1a1a1a;border-color:#2a2a2a}
+[data-theme=dark] .hname,[data-theme=dark] .hstat-val{color:#f0f0f0}
+[data-theme=dark] .bottom-nav{background:#1a1a1a;border-color:#2a2a2a}
+[data-theme=dark] .nl{color:#666}
+[data-theme=dark] .hpbar{background:#222}
+/* Modal & dialog */
+[data-theme=dark] .mb,[data-theme=dark] .db{background:#1a1a1a;color:#f0f0f0}
+[data-theme=dark] .mh{background:#333}
+[data-theme=dark] .mt,[data-theme=dark] .dbt{color:#f0f0f0}
+[data-theme=dark] .dbm{color:#888}
+/* Forms */
+[data-theme=dark] .fi,[data-theme=dark] .fs,[data-theme=dark] .fta{background:#252525;border-color:#333;color:#f0f0f0}
+[data-theme=dark] .fl{color:#888}
+/* Buttons */
+[data-theme=dark] .bo{color:#f0f0f0;border-color:#444}
+[data-theme=dark] .ib{background:#252525;color:#f0f0f0}
+/* Cards & lists */
+[data-theme=dark] .card,[data-theme=dark] .rc,[data-theme=dark] .exc,[data-theme=dark] .shi,[data-theme=dark] .hcard,[data-theme=dark] .drit,[data-theme=dark] .db{background:#1e1e1e}
+[data-theme=dark] .si{border-color:#2a2a2a}
+[data-theme=dark] .slbl,[data-theme=dark] .ett{color:#f0f0f0}
+[data-theme=dark] .mbb,[data-theme=dark] .bgray,.spill{background:#2a2a2a}
+[data-theme=dark] .tog{background:#333}
+[data-theme=dark] .shck{border-color:#444}
+[data-theme=dark] .ibox{background:rgba(200,245,0,.08)}
+/* PageAna dynamic widgets - all white backgrounds become dark */
+[data-theme=dark] #page-ana > div:not([style*="gradient"]){background:#1e1e1e !important}
+[data-theme=dark] #page-ana div[style*="background:#fff"]{background:#1e1e1e !important}
+[data-theme=dark] #page-ana div[style*="background:#f8f8f8"]{background:#252525 !important}
+[data-theme=dark] #page-ana div[style*="background:#f4f4f4"]{background:#252525 !important}
+[data-theme=dark] #page-ana div[style*="background:#ebebeb"]{background:#333 !important}
+[data-theme=dark] #page-ana div[style*="color:#1a1a1a"]{color:#f0f0f0 !important}
+[data-theme=dark] #page-ana span[style*="color:#1a1a1a"]{color:#f0f0f0 !important}
+[data-theme=dark] #page-ana div[style*="color:#333"]{color:#f0f0f0 !important}
+[data-theme=dark] #page-ana div[style*="color:#666"]{color:#aaa !important}
+[data-theme=dark] #page-ana div[style*="border-bottom:1px solid #f"]{border-color:#2a2a2a !important}
+[data-theme=dark] #page-ana div[style*="border-bottom:1px solid #e"]{border-color:#2a2a2a !important}
+[data-theme=dark] #page-ana div[style*="border-top:1px solid #f"]{border-color:#2a2a2a !important}
+[data-theme=dark] #page-spor > div:not([style*="gradient"]){background:#1e1e1e !important}
+[data-theme=dark] #page-spor div[style*="background:#fff"]{background:#1e1e1e !important}
+[data-theme=dark] #page-spor div[style*="background:#f4f4f4"]{background:#252525 !important}
+[data-theme=dark] #page-spor div[style*="background:#f8f8f8"]{background:#252525 !important}
+[data-theme=dark] #page-ayarlar .ss{color:#666}
+[data-theme=dark] #page-ayarlar > *{background:#111}
+/* ring circles in dark */
+[data-theme=dark] circle.ct-dark,[data-theme=dark] .ct{stroke:#333}
+</style>
+</head>
+<body>
+
+<script>
+(function(){
+  // Generate app icon as PNG via Canvas - works in iOS Safari PWA
+  var c=document.createElement('canvas');
+  c.width=180;c.height=180;
+  var ctx=c.getContext('2d');
+  // Rounded rect background
+  var r=42;
+  ctx.beginPath();
+  ctx.moveTo(r,0);ctx.lineTo(180-r,0);
+  ctx.quadraticCurveTo(180,0,180,r);
+  ctx.lineTo(180,180-r);
+  ctx.quadraticCurveTo(180,180,180-r,180);
+  ctx.lineTo(r,180);
+  ctx.quadraticCurveTo(0,180,0,180-r);
+  ctx.lineTo(0,r);
+  ctx.quadraticCurveTo(0,0,r,0);
+  ctx.closePath();
+  // Gradient fill
+  var grd=ctx.createLinearGradient(0,0,180,180);
+  grd.addColorStop(0,'#fdf60f');
+  grd.addColorStop(1,'#9bf904');
+  ctx.fillStyle=grd;
+  ctx.fill();
+  // Draw M/lightning bolt shape (simplified polygon)
+  ctx.fillStyle='#1a1a1a';
+  ctx.beginPath();
+  // Scale the SVG polygon points from 1170x1080 to 180x180
+  var sx=180/1170, sy=180/1080;
+  var pts=[[866.51,428.94],[805.82,368.25],[657.16,368.25],[617.16,408.25],[577.16,368.25],[428.51,368.25],[355.04,441.71],[355.04,711.75],[583.7,483.1],[583.7,711.75]];
+  ctx.moveTo(pts[0][0]*sx, pts[0][1]*sy);
+  for(var i=1;i<pts.length;i++) ctx.lineTo(pts[i][0]*sx, pts[i][1]*sy);
+  ctx.closePath();
+  ctx.fill();
+  // Set as apple-touch-icon
+  var png=c.toDataURL('image/png');
+  var ati=document.getElementById('ati');
+  var favi=document.getElementById('favi');
+  if(ati)ati.href=png;
+  if(favi)favi.href=png;
+})();
+</script>
+
+<div id="app">
+  <header class="app-header">
+    <div class="hlogo"><svg viewBox="0 0 1170 1080" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="hlg" x1="283.07" y1="261.59" x2="909.04" y2="838.79" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fdf60f"/><stop offset="1" stop-color="#9bf904"/></linearGradient></defs><rect fill="url(#hlg)" x="159.26" y="114.26" width="851.47" height="851.47" rx="207.88" ry="207.88"/><polygon fill="#1a1a1a" points="866.51 428.94 805.82 368.25 657.16 368.25 617.16 408.25 577.16 368.25 428.51 368.25 355.04 441.71 355.04 711.75 583.7 483.1 583.7 711.75 866.51 428.94"/></svg></div>
+    <div class="hname" id="hNameEl">Merhaba! 👋</div>
+    <div class="hstats">
+      <div class="hstat"><div class="hstat-val" id="hWeightEl">—</div><div class="hstat-lbl">Weight</div></div>
+      <div class="hstat"><div class="hstat-val" id="hTargetEl">—</div><div class="hstat-lbl">Target</div></div>
+      <button class="hsbtn" id="settingsBtn"><svg width="20" height="14" viewBox="0 0 20 14" fill="none"><rect width="20" height="2" rx="1" fill="currentColor"/><rect y="6" width="14" height="2" rx="1" fill="currentColor"/><rect y="12" width="20" height="2" rx="1" fill="currentColor"/></svg></button>
+    </div>
+  </header>
+  <div class="hpbar"><div class="hpbar-fill" style="width:0%" id="hpbarFill"></div></div>
+  <main class="page-container">
+    <div id="page-ana" class="page active"></div>
+    <div id="page-spor" class="page"></div>
+    <div id="page-tarifler" class="page"></div>
+    <div id="page-alisveris" class="page"></div>
+    <div id="page-ayarlar" class="page"></div>
+  </main>
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-page="ana"><div class="niw"><span class="ni">🔥</span></div><span class="nl">Intake</span></button>
+    <button class="nav-btn" data-page="spor"><div class="niw"><span class="ni">💪</span></div><span class="nl">Spor</span></button>
+    <button class="nav-btn" data-page="tarifler"><div class="niw"><span class="ni">🍽️</span></div><span class="nl">Tarifler</span></button>
+    <button class="nav-btn" data-page="alisveris"><div class="niw"><span class="ni">🛒</span></div><span class="nl">Liste</span></button>
+  </nav>
+  <input type="file" id="fotoInput" accept="image/*" class="finh"/>
+  <input type="file" id="tarifFotoInput" accept="image/*" class="finh"/>
+</div>
+<div id="dov" class="dov" style="display:none"><div class="db"><div class="dbt" id="dTitle"></div><div class="dbm" id="dMsg"></div><input class="fi" id="dInp" style="display:none;margin-bottom:14px"/><div class="dbb" id="dBtns"></div></div></div>
+<div id="mov" class="mov hidden"><div id="mbox" class="mb"><span class="mh"></span><div class="mhd"><div class="mt" id="mtitle"></div><button id="mclose" class="ib">✕</button></div><div id="mbody"></div></div></div>
+<script>
+'use strict';
+/* ===== DIALOG ===== */
+const D=(() => {
+  function show({title='',msg='',input=false,ph='',def='',buttons=[{label:'Tamam',value:true,s:'bl'}]}){
+    return new Promise(res=>{
+      document.getElementById('dTitle').textContent=title;
+      document.getElementById('dMsg').textContent=msg;
+      const inp=document.getElementById('dInp');
+      if(input){inp.style.display='block';inp.placeholder=ph;inp.value=def;}
+      else inp.style.display='none';
+      const btns=document.getElementById('dBtns');btns.innerHTML='';
+      buttons.forEach(b=>{
+        const btn=document.createElement('button');
+        btn.className='btn '+(b.s||'bo');btn.textContent=b.label;
+        btn.onclick=()=>{document.getElementById('dov').style.display='none';res(input?b.value?inp.value.trim():null:b.value);};
+        btns.appendChild(btn);
+      });
+      document.getElementById('dov').style.display='flex';
+      if(input)setTimeout(()=>inp.focus(),100);
+    });
+  }
+  const confirm=(msg,t='Emin misin?')=>show({title:t,msg,buttons:[{label:'İptal',value:false,s:'bo'},{label:'Evet',value:true,s:'bd'}]});
+  const alert=(msg,t='Bilgi')=>show({title:t,msg,buttons:[{label:'Tamam',value:true,s:'bl'}]});
+  const prompt=(msg,ph='',def='',t='')=>show({title:t||msg,msg:t?msg:'',input:true,ph,def,buttons:[{label:'İptal',value:false,s:'bo'},{label:'Tamam',value:true,s:'bl'}]});
+  return{confirm,alert,prompt};
+})();
+
+
+/* ===== STORE ===== */
+const S=(() => {
+  const KEY='fitapp_v3';
+  const DEF={
+    macros:{kalori:2200,protein:160,karbonhidrat:250,yag:65,lif:30,vitamin_c:90,demir:18,kalsiyum:1000,magnezyum:400},
+    profil:{ad:'',kilo:'',boy:'',yas:'',cinsiyet:'Erkek',aktivite:'1.55',hedef:'koruma',proteinOrani:'2.0',yagOrani:'0.9',manuelMod:false},
+    olcumler:{gogus:'',bel:'',kalca:'',biceps_sag:'',biceps_sol:'',uyluk_sag:'',uyluk_sol:'',omuz:'',boyun:'',bacak:''},
+    olcumGecmisi:[],egzersizler:[],tarifler:[],alisveris:[],ogunGecmisi:{},
+    foto:{ilk:null,son:null},su:{hedef:8,gecmis:{}},uyku:[],
+    fastingState:{active:false,startTime:null,targetHours:16},
+    settings:{theme:'light',goster:{oruc:true,su:true,mikro:true,uyku:true,analiz:true,foto:true},
+      dashboardSira:['kcal','oruc','su','uyku','mikro','analiz','foto']}
+  };
+  function load(){try{const r=localStorage.getItem(KEY);if(!r)return JSON.parse(JSON.stringify(DEF));return dm(JSON.parse(JSON.stringify(DEF)),JSON.parse(r));}catch{return JSON.parse(JSON.stringify(DEF));}}
+  function dm(t,s){for(const k in s){if(s[k]&&typeof s[k]==='object'&&!Array.isArray(s[k])){if(!t[k])t[k]={};dm(t[k],s[k]);}else t[k]=s[k];}return t;}
+  function save(d){try{localStorage.setItem(KEY,JSON.stringify(d));}catch{const d2={...d,foto:{ilk:null,son:null},tarifler:(d.tarifler||[]).map(t=>({...t,foto:null}))};try{localStorage.setItem(KEY,JSON.stringify(d2));}catch{}}}
+  function exportJ(d){const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='fitapp_yedek_'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(u);},300);}
+  function importJ(file,cb){const r=new FileReader();r.onload=e=>{try{cb(null,JSON.parse(e.target.result));}catch{cb(new Error('Geçersiz dosya'));}};r.readAsText(file);}
+  function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
+  function today(){return new Date().toISOString().slice(0,10);}
+  function pd(v){if(!v)return'';if(/^\d{4}-\d{2}-\d{2}$/.test(v)){const[y,m,dd]=v.split('-').map(Number);return new Date(y,m-1,dd).toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'});}return String(v);}
+  return{load,save,exportJ,importJ,uid,today,pd};
+})();
+
+
+/* ===== CALC ===== */
+const C=(() => {
+  const aL={'1.2':'Masa Başı','1.375':'Hafif Aktif','1.55':'Orta Aktif','1.725':'Çok Aktif','1.9':'Ekstra Aktif'};
+  const hL={'vermek500':'Kilo Ver (-500)','vermek300':'Kilo Ver (-300)','koruma':'Koru (TDEE)','almak300':'Kilo Al (+300)','almak500':'Kilo Al (+500)'};
+  function bmr(k,b,y,c){if(!k||!b||!y)return null;return c==='Erkek'?Math.round(10*+k+6.25*+b-5*+y+5):Math.round(10*+k+6.25*+b-5*+y-161);}
+  function hesapla(p){const b=bmr(p.kilo,p.boy,p.yas,p.cinsiyet);if(!b)return null;const t=Math.round(b*(+(p.aktivite||'1.55')));const hm={vermek500:-500,vermek300:-300,koruma:0,almak300:300,almak500:500};const kcal=t+(hm[p.hedef||'koruma']||0);const pr=Math.round((+p.kilo)*(+(p.proteinOrani||'2.0')));const ya=Math.round((+p.kilo)*(+(p.yagOrani||'0.9')));const ka=Math.max(0,Math.round((kcal-(pr*4)-(ya*9))/4));const e=p.cinsiyet==='Erkek';return{bmr:b,tdee:t,kalori:kcal,protein:pr,yag:ya,karbonhidrat:ka,lif:e?38:25,vitamin_c:e?90:75,demir:e?8:18,kalsiyum:1000,magnezyum:e?420:320};}
+  function ogt(og){const t={kalori:0,protein:0,karbonhidrat:0,yag:0,lif:0,vitamin_c:0,demir:0,kalsiyum:0,magnezyum:0};(og||[]).forEach(o=>Object.keys(t).forEach(k=>{t[k]+=+(o[k]||0);}));return t;}
+  function rc(key){const dk=document.documentElement.getAttribute('data-theme')==='dark';const m={blue:dk?'#4a9ee0':'#1a6fb5',green:dk?'#5cb800':'#2d8a4e',yellow:dk?'#f0a830':'#c47d00',red:dk?'#ff6b6b':'#e53935',purple:dk?'#a78bfa':'#7c3aed',lime:'#7aaa00'};return m[key]||m.lime;}
+  function vag(p,o){
+    const{kilo,boy,cinsiyet}=p;const{bel,boyun,kalca,gogus,bacak,omuz}=o;
+    if(!kilo||!boy||!bel||!boyun)return null;
+    const h=+boy,w=+kilo,wa=+bel,ne=+boyun,hi=+(kalca||0),ch=+(gogus||0),th=+(bacak||0),sh=+(omuz||0);
+    const K=cinsiyet==='Erkek'?1:0;if(K===0&&!hi)return null;
+    const l=x=>Math.log(x)/Math.log(10);const bmi=w/Math.pow(h/100,2);
+    let N=K===1?86.010*l(wa-ne)-70.041*l(h)+36.76:163.205*l(wa+hi-ne)-97.684*l(h)-78.387;
+    const Dv=(25*wa/h)-(15*ne/h)-(10*sh/h)+(8*(1-K)*hi/h)-(6*ch/h)+(4*th/h);
+    let fat=Math.max(3,Math.min(60,(0.6*N)+(0.25*(1.20*bmi-10.8*K-5.4))+(0.15*Dv)));
+    const bb=wa/h;
+    let tip,ta,tr;
+    if(K===1){if(bmi<20&&fat<12){tip='Ektomorf';ta='İnce yapı, düşük yağ.';tr=rc('blue');}else if(bmi>=19&&bmi<=25&&fat>=10&&fat<=20){tip='Mezomorf';ta='Atletik yapı, dengeli oran.';tr=rc('green');}else{tip='Endomorf';ta='Yağ depolama eğilimi yüksek.';tr=rc('yellow');}}
+    else{if(bmi<19&&fat<18){tip='Ektomorf';ta='İnce yapı.';tr=rc('blue');}else if(bmi>=19&&bmi<=24&&fat>=18&&fat<=28){tip='Mezomorf';ta='Atletik yapı.';tr=rc('green');}else{tip='Endomorf';ta='Yağ eğilimi yüksek.';tr=rc('yellow');}}
+    const arl=K===1?{alt:8,ia:10,iu:20,ust:25}:{alt:14,ia:18,iu:28,ust:35};
+    let sd,sr;if(fat<=arl.alt){sd='Çok Düşük';sr=rc('blue');}else if(fat<=arl.iu){sd='Sağlıklı ✓';sr=rc('green');}else if(fat<=arl.ust){sd='Yüksek';sr=rc('yellow');}else{sd='Çok Yüksek';sr=rc('red');}
+    let bk,br;if(bmi<18.5){bk='Zayıf';br=rc('blue');}else if(bmi<25){bk='Normal ✓';br=rc('green');}else if(bmi<30){bk='Fazla Kilolu';br=rc('yellow');}else{bk='Obez';br=rc('red');}
+    let bbk,bbr;if(bb<0.4){bbk='Çok İnce';bbr=rc('blue');}else if(bb<0.5){bbk='Sağlıklı ✓';bbr=rc('green');}else if(bb<0.6){bbk='Risk Altında';bbr=rc('yellow');}else{bbk='Yüksek Risk';bbr=rc('red');}
+    return{fat:+fat.toFixed(1),bmi:+bmi.toFixed(1),belBoy:+bb.toFixed(3),tip,tipAciklama:ta,tipRenk:tr,saglikDurum:sd,saglikRenk:sr,bmiKat:bk,bmiRenk:br,bbKat:bbk,bbRenk:bbr,arl,K};
+  }
+  return{hesapla,aLabels:aL,hLabels:hL,ogt,vag};
+})();
+
+
+/* ===== THEME ===== */
+const T=(() => {
+  let cur='light';
+  const apply=t=>{cur=t;document.documentElement.setAttribute('data-theme',t);};
+  const toggle=()=>{const n=cur==='light'?'dark':'light';apply(n);return n;};
+  const init=t=>apply(t||'light');
+  return{init,toggle,get:()=>cur};
+})();
+
+
+/* ===== MODAL ===== */
+const M=(() => {
+  let cb=null;
+  const open=(title,html,onClose)=>{document.getElementById('mtitle').textContent=title;document.getElementById('mbody').innerHTML=html;document.getElementById('mov').classList.remove('hidden');cb=onClose||null;};
+  const close=()=>{document.getElementById('mov').classList.add('hidden');if(cb){cb();cb=null;}};
+  const body=()=>document.getElementById('mbody');
+  document.addEventListener('DOMContentLoaded',()=>{
+    document.getElementById('mclose').onclick=close;
+    document.getElementById('mov').addEventListener('click',e=>{if(e.target.id==='mov')close();});
+  });
+  return{open,close,body};
+})();
+
+
+
+/* ===== PAGE ANA ===== */
+const PageAna=(() => {
+  let sel=S.today();
+  var fastInt=null;
+  const DAYS=['Paz','Pzt','Sal','Car','Per','Cum','Cmt'];
+
+  function getDates(){
+    var d=new Date(sel),res=[];
+    for(var i=-3;i<=3;i++){
+      var dt=new Date(d);dt.setDate(d.getDate()+i);
+      res.push({iso:dt.toISOString().slice(0,10),day:DAYS[dt.getDay()],num:dt.getDate()});
+    }
+    return res;
+  }
+
+  function drawRing(container,pct,label,bigNum,subLabel,color){
+    color=color||'#c8f500';
+    var sz=130,sw=13,R=sz/2-sw-2;
+    var total=2*Math.PI*R;
+    var filled=(Math.min(pct,100)/100)*total;
+    var off=total-filled;
+    var svg='<svg width="'+sz+'" height="'+sz+'" viewBox="0 0 '+sz+' '+sz+'" style="transform:rotate(-90deg)">'+
+      '<circle fill="none" stroke="#ebebeb" cx="'+(sz/2)+'" cy="'+(sz/2)+'" r="'+R+'" stroke-width="'+sw+'"/>'+
+      '<circle fill="none" stroke="'+color+'" cx="'+(sz/2)+'" cy="'+(sz/2)+'" r="'+R+'" stroke-width="'+sw+'" stroke-linecap="round" stroke-dasharray="'+total+'" stroke-dashoffset="'+off+'" style="transition:stroke-dashoffset .8s ease"/>'+
+      '</svg>';
+    var inner='<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center">'+
+      '<div style="font-size:11px;color:#aaa;font-weight:600">'+label+'</div>'+
+      '<div style="font-size:28px;font-weight:900;line-height:1;color:#1a1a1a">'+bigNum+'</div>'+
+      '<div style="font-size:11px;color:#aaa;font-weight:600">'+subLabel+'</div>'+
+      '</div>';
+    container.style.cssText='position:relative;width:'+sz+'px;height:'+sz+'px;flex-shrink:0';
+    container.innerHTML=svg+inner;
+  }
+
+  function drawMacroBar(wrap,name,color,val,hedef){
+    var pct=hedef?Math.min(Math.round((val/hedef)*100),100):0;
+    var over=val>hedef;
+    var c=over?'#ff4d4d':color;
+    wrap.innerHTML=
+      '<div style="display:flex;justify-content:space-between;margin-bottom:3px">'+
+        '<span style="font-size:12px;color:#666;font-weight:600">'+name+'</span>'+
+        '<span style="font-size:12px;font-weight:800;color:'+c+'">'+val+'/'+hedef+'</span>'+
+      '</div>'+
+      '<div style="background:#ebebeb;border-radius:100px;height:6px;overflow:hidden">'+
+        '<div style="height:100%;width:'+pct+'%;background:'+c+';border-radius:100px;transition:width .5s ease"></div>'+
+      '</div>';
+  }
+
+  function render(data){
+    var el=document.getElementById('page-ana');
+    if(!el)return;
+    var m=data.macros,p=data.profil;
+    var sg=data.settings||{},g=sg.goster||{};
+    var sira=sg.dashboardSira||['kcal','oruc','su','uyku','mikro','analiz','foto'];
+    var ogunler=(data.ogunGecmisi||{})[sel]||[];
+    var yn=C.ogt(ogunler);
+    var calc=C.hesapla(p);
+    var isManuel=p.manuelMod||false;
+    var an=C.vag(p,data.olcumler||{});
+    var su=data.su||{hedef:8,gecmis:{}};
+    var suCur=(su.gecmis||{})[sel]||0;
+    var suHd=su.hedef||8;
+    var foto=data.foto||{};
+    var uyku=data.uyku||[];
+
+    // Build HTML using DOM methods to avoid template literal issues
+    el.innerHTML='';
+
+    // 1. DATE STRIP
+    var dateDiv=document.createElement('div');
+    dateDiv.style.cssText='background:#fff;border-bottom:1px solid #f0f0f0;margin-bottom:1px';
+    var dateNav=document.createElement('div');
+    dateNav.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:10px 16px 6px';
+    var btnL=document.createElement('button');
+    btnL.id='pDay';btnL.textContent='◀';
+    btnL.style.cssText='background:none;border:none;cursor:pointer;color:#bbb;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:14px';
+    var dateSpan=document.createElement('span');
+    dateSpan.style.cssText='font-size:15px;font-weight:800;color:#1a1a1a';
+    dateSpan.textContent=sel===S.today()?'Bugün':S.pd(sel).split(' ').slice(0,2).join(' ');
+    var btnR=document.createElement('button');
+    btnR.id='nDay';btnR.textContent='▶';
+    btnR.style.cssText='background:none;border:none;cursor:pointer;color:#bbb;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:14px';
+    dateNav.appendChild(btnL);dateNav.appendChild(dateSpan);dateNav.appendChild(btnR);
+    var dateStrip=document.createElement('div');
+    dateStrip.style.cssText='display:flex;gap:4px;overflow-x:auto;padding:6px 16px 10px;scrollbar-width:none;justify-content:center';
+    var dates=getDates();
+    dates.forEach(function(d){
+      var cell=document.createElement('div');
+      cell.className='dcell';cell.dataset.date=d.iso;
+      var isActive=sel===d.iso;
+      cell.style.cssText='flex-shrink:0;width:42px;height:54px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-radius:10px;cursor:pointer;transition:all .18s;'+(isActive?'background:#c8f500;box-shadow:0 4px 12px rgba(200,245,0,.5)':'');
+      cell.innerHTML='<div style="font-size:9px;font-weight:800;text-transform:uppercase;color:'+(isActive?'#1a1a1a':'#ccc')+'">'+d.day+'</div><div style="font-size:17px;font-weight:900;color:#1a1a1a">'+d.num+'</div>';
+      dateStrip.appendChild(cell);
+    });
+    dateDiv.appendChild(dateNav);dateDiv.appendChild(dateStrip);
+    el.appendChild(dateDiv);
+
+    // 2. WIDGET MAP - build each widget
+    function makeSection(html_str){
+      var d=document.createElement('div');d.innerHTML=html_str;return d.firstChild;
+    }
+
+    // Build widgets based on sira
+    sira.forEach(function(key){
+      if(key==='kcal') el.appendChild(buildKcal(m,p,yn,calc,isManuel,ogunler));
+      else if(key==='oruc' && g.oruc!==false) el.appendChild(buildOruc(data));
+      else if(key==='mikro' && g.mikro!==false) el.appendChild(buildMikro(m,yn));
+      else if(key==='su' && g.su!==false) el.appendChild(buildSu(suCur,suHd));
+      else if(key==='uyku' && g.uyku!==false) el.appendChild(buildUyku(uyku));
+      else if(key==='analiz' && g.analiz!==false){el.appendChild(buildAnaliz(p,data.olcumler||{},an,calc));}
+      else if(key==='foto' && g.foto!==false) el.appendChild(buildFoto(foto));
+    });
+
+    // 3. MEALS BOTTOM
+    el.appendChild(buildMeals(m,ogunler));
+
+    // EVENTS
+    el.querySelector('#pDay').onclick=function(){var d=new Date(sel);d.setDate(d.getDate()-1);sel=d.toISOString().slice(0,10);render(data);};
+    el.querySelector('#nDay').onclick=function(){var d=new Date(sel);d.setDate(d.getDate()+1);var t=new Date(S.today());if(d<=t){sel=d.toISOString().slice(0,10);render(data);}};
+    el.querySelectorAll('.dcell').forEach(function(dc){dc.onclick=function(){sel=dc.dataset.date;render(data);};});
+
+    var macBtn=el.querySelector('#macTogBtn');
+    if(macBtn)macBtn.onclick=function(){
+      data.profil.manuelMod=!isManuel;
+      if(!data.profil.manuelMod){var c2=C.hesapla(data.profil);if(c2)['kalori','protein','karbonhidrat','yag','lif','vitamin_c','demir','kalsiyum','magnezyum'].forEach(function(k){data.macros[k]=c2[k];});}
+      S.save(data);render(data);
+    };
+
+    var amBtn=el.querySelector('#amBtn');
+    if(amBtn)amBtn.onclick=function(){oChoice(data,sel,null,function(){render(data);});};
+
+    el.querySelectorAll('.mrow[data-bolum]').forEach(function(r){
+      r.onclick=function(){oChoice(data,sel,r.dataset.bolum,function(){render(data);});};
+    });
+
+    el.querySelectorAll('.del-og-btn').forEach(function(b){
+      b.onclick=function(){var og=data.ogunGecmisi||{};if(og[sel])og[sel].splice(+b.dataset.i,1);S.save(data);render(data);};
+    });
+
+    var fsBtn=el.querySelector('#fsBtn');
+    if(fsBtn)fsBtn.addEventListener('click',function(){data.fastingState={active:true,startTime:Date.now(),targetHours:16};S.save(data);render(data);});
+    // Live fasting clock
+    if(fastInt){clearInterval(fastInt);fastInt=null;}
+    if(data.fastingState&&data.fastingState.active){
+      fastInt=setInterval(function(){
+        var f=data.fastingState;
+        var rem=Math.max(0,(f.targetHours*3600000)-(Date.now()-f.startTime));
+        var p2=function(n){return String(Math.floor(n)).padStart(2,'0');};
+        var ts=p2(rem/3600000)+':'+p2((rem%3600000)/60000)+':'+p2((rem%60000)/1000);
+        var rv=document.getElementById('fastRingVal');
+        if(rv)rv.textContent=ts;
+        else{clearInterval(fastInt);fastInt=null;}
+        if(rem<=0){clearInterval(fastInt);fastInt=null;}
+      },1000);
+    }
+    var feBtn=el.querySelector('#feBtn');
+    if(feBtn)feBtn.addEventListener('click',function(){D.confirm('Orucu bitirmek istiyor musun?').then(function(ok){if(ok){data.fastingState={active:false,startTime:null,targetHours:16};if(fastInt){clearInterval(fastInt);fastInt=null;}S.save(data);render(data);}});});
+
+    var suBtn=el.querySelector('#suIctimBtn');
+    if(suBtn)suBtn.addEventListener('click',function(){
+      if(!data.su.gecmis)data.su.gecmis={};
+      var cur=(data.su.gecmis[sel]||0);
+      if(cur<(data.su.hedef||8)){data.su.gecmis[sel]=cur+1;S.save(data);render(data);}
+      else D.alert('Günlük su hedefine ulaştın! 🎉','Tebrikler');
+    });
+
+    el.querySelectorAll('.del-uyku-btn').forEach(function(b){
+      b.onclick=function(){if(data.uyku)data.uyku.splice(+b.dataset.i,1);S.save(data);render(data);};
+    });
+
+    var yolcBtn=el.querySelector('#yolcBtn');
+    if(yolcBtn)yolcBtn.addEventListener('click',function(){oOlcum(data,function(){render(data);});});
+    var auBtn=el.querySelector('#auBtn');
+    if(auBtn)auBtn.addEventListener('click',function(){oUyku(data,function(){render(data);});});
+
+    setupFoto(el,data,function(){render(data);});
+  }
+
+  /* ===== BUILD FUNCTIONS ===== */
+
+  function buildKcal(m,p,yn,calc,isManuel,ogunler){
+    var kcalKalan=Math.max(0,(m.kalori||1)-(yn.kalori||0));
+    var kcalPct=Math.min(Math.round(((yn.kalori||0)/(m.kalori||1))*100),100);
+
+    var wrap=document.createElement('div');
+    wrap.style.cssText='background:#fff;padding:14px 16px;margin-bottom:1px';
+
+    // Header row
+    var hdr=document.createElement('div');
+    hdr.style.cssText='display:flex;justify-content:space-between;align-items:center;margin-bottom:14px';
+    var title=document.createElement('div');
+    title.style.cssText='font-size:15px;font-weight:800;color:#1a1a1a';
+    title.textContent='Makro Hedefler';
+    var toggleWrap=document.createElement('div');
+    toggleWrap.style.cssText='display:flex;align-items:center;gap:8px';
+    var otoLbl=document.createElement('div');
+    otoLbl.style.cssText='font-size:13px;font-weight:700;color:'+(isManuel?'#aaa':'#7aaa00');
+    otoLbl.textContent=isManuel?'Manuel':'Oto';
+    var togBtn=document.createElement('button');
+    togBtn.id='macTogBtn';
+    togBtn.style.cssText='width:44px;height:24px;background:'+(isManuel?'#ddd':'#aadd00')+';border-radius:100px;border:none;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0';
+    var togDot=document.createElement('div');
+    togDot.style.cssText='position:absolute;width:18px;height:18px;background:#fff;border-radius:50%;top:3px;left:'+(isManuel?'3px':'23px')+';transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.2)';
+    togBtn.appendChild(togDot);
+    toggleWrap.appendChild(otoLbl);toggleWrap.appendChild(togBtn);
+    hdr.appendChild(title);hdr.appendChild(toggleWrap);
+    wrap.appendChild(hdr);
+
+    // Ring + bars row
+    var ringBarsRow=document.createElement('div');
+    ringBarsRow.style.cssText='display:flex;align-items:center;gap:16px';
+    var ringEl=document.createElement('div');
+    drawRing(ringEl,kcalPct,'Kcal',kcalKalan.toLocaleString('tr'),'Remaining','#c8f500');
+    var barsWrap=document.createElement('div');
+    barsWrap.style.cssText='flex:1;display:flex;flex-direction:column;gap:9px';
+    var carbBar=document.createElement('div'),proBar=document.createElement('div'),fatBar=document.createElement('div');
+    drawMacroBar(carbBar,'Carb','#ff4d4d',yn.karbonhidrat||0,m.karbonhidrat||250);
+    drawMacroBar(proBar,'Protein','#4a9ee0',yn.protein||0,m.protein||160);
+    drawMacroBar(fatBar,'Fat','#ff9500',yn.yag||0,m.yag||65);
+    barsWrap.appendChild(carbBar);barsWrap.appendChild(proBar);barsWrap.appendChild(fatBar);
+    ringBarsRow.appendChild(ringEl);ringBarsRow.appendChild(barsWrap);
+    wrap.appendChild(ringBarsRow);
+
+    // Ogun list
+    if(ogunler.length>0){
+      var ol=document.createElement('div');
+      ol.style.cssText='border-top:1px solid #f5f5f5;margin-top:12px;padding-top:8px';
+      ogunler.forEach(function(og,i){
+        var row=document.createElement('div');
+        row.style.cssText='display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f8f8f8';
+        var info=document.createElement('div');info.style.cssText='flex:1';
+        var adEl=document.createElement('div');adEl.style.cssText='font-size:13px;font-weight:700';adEl.textContent=og.ad;
+        var macEl=document.createElement('div');macEl.style.cssText='font-size:11px;color:#aaa';macEl.textContent='P:'+(og.protein||0)+'g K:'+(og.karbonhidrat||0)+'g Y:'+(og.yag||0)+'g';
+        info.appendChild(adEl);info.appendChild(macEl);
+        var kcalEl=document.createElement('span');kcalEl.style.cssText='font-size:13px;font-weight:800;color:#7aaa00';kcalEl.textContent=(og.kalori||0)+' kcal';
+        var delBtn=document.createElement('button');
+        delBtn.className='del-og-btn';delBtn.dataset.i=i;delBtn.textContent='✕';
+        delBtn.style.cssText='background:#f0f0f0;border:none;border-radius:50%;width:24px;height:24px;font-size:11px;cursor:pointer';
+        row.appendChild(info);row.appendChild(kcalEl);row.appendChild(delBtn);
+        ol.appendChild(row);
+      });
+      wrap.appendChild(ol);
+    }
+
+    // BMR banner (orange)
+    if(calc){
+      var bmrDiv=document.createElement('div');
+      bmrDiv.style.cssText='background:linear-gradient(135deg,#ff7a00,#ff9800);border-radius:12px;padding:12px 14px;margin-top:12px;color:#fff;position:relative;overflow:hidden';
+      var bmrTitle=document.createElement('div');
+      bmrTitle.style.cssText='font-size:10px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.8);margin-bottom:7px';
+      bmrTitle.textContent='⚡ OTOMATİK HESAPLAMA';
+      bmrDiv.appendChild(bmrTitle);
+      [['BMR',calc.bmr+' kcal'],['TDEE ('+( C.aLabels[p.aktivite||'1.55']||'Orta Aktif')+')',calc.tdee+' kcal'],['Hedef ('+(C.hLabels[p.hedef||'koruma']||'Koru')+') ',calc.kalori+' kcal']].forEach(function(pair){
+        var row=document.createElement('div');
+        row.style.cssText='display:flex;justify-content:space-between;align-items:center;padding:2px 0';
+        var lbl=document.createElement('span');lbl.style.cssText='font-size:12px;color:rgba(255,255,255,.85)';lbl.textContent=pair[0];
+        var val=document.createElement('span');val.style.cssText='font-size:16px;font-weight:900;color:#fff;font-style:italic';val.textContent=pair[1];
+        row.appendChild(lbl);row.appendChild(val);bmrDiv.appendChild(row);
+      });
+      wrap.appendChild(bmrDiv);
+    }
+    return wrap;
+  }
+
+  function buildOruc(data){
+    var f=data.fastingState||{};
+    var wrap=document.createElement('div');
+    wrap.style.cssText='background:#fff;padding:14px 16px;margin-bottom:1px';
+    var title=document.createElement('div');
+    title.style.cssText='font-size:15px;font-weight:800;color:#1a1a1a;margin-bottom:10px';
+    title.textContent='Oruç Takibi';
+    wrap.appendChild(title);
+    if(!f.active){
+      var placeholder=document.createElement('div');
+      placeholder.style.cssText='background:#f8f8f8;border-radius:10px;padding:12px;text-align:center;margin-bottom:10px';
+      placeholder.innerHTML='<div style="font-size:12px;color:#ccc">Oruç takibini başlat</div>';
+      var startBtn=document.createElement('button');
+      startBtn.id='fsBtn';startBtn.textContent='Oruca Başla (16 saat)';
+      startBtn.style.cssText='width:100%;background:linear-gradient(135deg,#c8f500,#aadd00);border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:900;color:#1a1a1a;cursor:pointer;box-shadow:0 4px 14px rgba(200,245,0,.4)';
+      wrap.appendChild(placeholder);wrap.appendChild(startBtn);
+    } else {
+      var el2=Date.now()-f.startTime,tg=f.targetHours*3600000,fp=Math.min(Math.round((el2/tg)*100),100);
+      var rem=Math.max(0,tg-el2);
+      function pad(n){return String(Math.floor(n)).padStart(2,'0');}
+      var rs=pad(rem/3600000)+':'+pad((rem%3600000)/60000)+':'+pad((rem%60000)/1000);
+      var statusDiv=document.createElement('div');
+      statusDiv.style.cssText='text-align:center;font-size:12px;font-weight:700;color:#aaa;margin-bottom:6px';
+      statusDiv.textContent='Oruç Devam Ediyor!';
+      wrap.appendChild(statusDiv);
+      var ringWrap=document.createElement('div');
+      ringWrap.style.cssText='display:flex;justify-content:center;margin:8px 0 12px';
+      var ringEl=document.createElement('div');
+      drawRing(ringEl,fp,'Kalan',rs,'','#c8f500');
+      ringEl.style.cssText='position:relative;width:160px;height:160px;flex-shrink:0';
+      // Redraw with bigger size
+      var sz=160,sw=14,R=sz/2-sw-2,total2=2*Math.PI*R,off2=total2-(fp/100)*total2;
+      ringEl.innerHTML='<svg width="160" height="160" viewBox="0 0 160 160" style="transform:rotate(-90deg)">'+
+        '<circle fill="none" stroke="#ebebeb" cx="80" cy="80" r="'+R+'" stroke-width="'+sw+'"/>'+
+        '<circle fill="none" stroke="#c8f500" cx="80" cy="80" r="'+R+'" stroke-width="'+sw+'" stroke-linecap="round" stroke-dasharray="'+total2+'" stroke-dashoffset="'+off2+'" style="transition:stroke-dashoffset .8s ease"/>'+
+        '</svg>'+
+        '<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center">'+
+        '<div style="font-size:11px;color:#aaa;font-weight:600">Kalan</div>'+
+        '<div id="fastRingVal" style="font-size:22px;font-weight:900;line-height:1;color:#1a1a1a">'+rs+'</div>'+
+        '</div>';
+      ringWrap.appendChild(ringEl);wrap.appendChild(ringWrap);
+      var endBtn=document.createElement('button');
+      endBtn.id='feBtn';endBtn.textContent='Orucu Bitir';
+      endBtn.style.cssText='width:100%;background:linear-gradient(135deg,#c8f500,#aadd00);border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:900;color:#1a1a1a;cursor:pointer;box-shadow:0 4px 14px rgba(200,245,0,.4);margin-bottom:10px';
+      wrap.appendChild(endBtn);
+      var dy=['Paz','Pzt','Sal','Car','Per','Cum','Cmt'];
+      function f12(dt){var h=dt.getHours(),mm=dt.getMinutes().toString().padStart(2,'0');return(h%12||12)+':'+mm+' '+(h>=12?'PM':'AM');}
+      var sd=new Date(f.startTime),ed=new Date(f.startTime+tg);
+      var timesDiv=document.createElement('div');
+      timesDiv.style.cssText='display:flex;background:#f8f8f8;border-radius:10px;overflow:hidden;border:1px solid #eee';
+      timesDiv.innerHTML='<div style="flex:1;text-align:center;padding:9px;border-right:1px solid #eee"><div style="font-size:9px;font-weight:700;color:#ccc;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px">Başlangıç</div><div style="font-size:12px;font-weight:800">'+dy[sd.getDay()]+' '+f12(sd)+'</div></div>'+
+        '<div style="flex:1;text-align:center;padding:9px"><div style="font-size:9px;font-weight:700;color:#ccc;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px">Bitiş</div><div style="font-size:12px;font-weight:800">'+dy[ed.getDay()]+' '+f12(ed)+'</div></div>';
+      wrap.appendChild(timesDiv);
+    }
+    return wrap;
+  }
+
+  function buildMikro(m,yn){
+    var wrap=document.createElement('div');
+    wrap.style.cssText='background:#fff;padding:14px 16px;margin-bottom:1px';
+    var title=document.createElement('div');
+    title.style.cssText='font-size:15px;font-weight:800;color:#1a1a1a;margin-bottom:10px';
+    title.textContent='Mikro Besinler';
+    wrap.appendChild(title);
+    var items=[{k:'lif',l:'🌿 Lif',u:'g',c:'#5cb800'},{k:'vitamin_c',l:'🍊 C Vit.',u:'mg',c:'#f0a830'},{k:'demir',l:'🩸 Demir',u:'mg',c:'#ff4d4d'},{k:'kalsiyum',l:'🦴 Kalsiyum',u:'mg',c:'#4a9ee0'}];
+    items.forEach(function(it,idx){
+      var h=m[it.k]||1,v=yn[it.k]||0,pct=Math.min(Math.round((v/h)*100),100);
+      var row=document.createElement('div');
+      row.style.cssText='display:flex;align-items:center;gap:10px;padding:7px 0;'+(idx<items.length-1?'border-bottom:1px solid #f8f8f8':'');
+      var lbl=document.createElement('div');lbl.style.cssText='width:80px;flex-shrink:0;font-size:12px;color:#666';lbl.textContent=it.l;
+      var barWrap=document.createElement('div');barWrap.style.cssText='flex:1;background:#ebebeb;border-radius:100px;height:6px;overflow:hidden';
+      var barFill=document.createElement('div');barFill.style.cssText='height:100%;width:'+pct+'%;background:'+it.c+';border-radius:100px;transition:width .5s ease';
+      barWrap.appendChild(barFill);
+      var valEl=document.createElement('div');valEl.style.cssText='font-size:11px;font-weight:800;color:'+it.c+';min-width:58px;text-align:right';valEl.textContent=v+'/'+h+it.u;
+      row.appendChild(lbl);row.appendChild(barWrap);row.appendChild(valEl);
+      wrap.appendChild(row);
+    });
+    return wrap;
+  }
+
+  function buildSu(suCur,suHd){
+    var pct=Math.min(Math.round((suCur/suHd)*100),100);
+    var wrap=document.createElement('div');
+    wrap.style.cssText='background:#fff;padding:14px 16px;margin-bottom:1px';
+    var hdr=document.createElement('div');
+    hdr.style.cssText='display:flex;justify-content:space-between;align-items:center;margin-bottom:8px';
+    var title=document.createElement('div');title.style.cssText='font-size:15px;font-weight:800;color:#1a1a1a';title.textContent='Su Takibi';
+    var countEl=document.createElement('div');countEl.style.cssText='font-size:14px;font-weight:800;color:#4a9ee0';countEl.textContent=suCur+'/'+suHd;
+    hdr.appendChild(title);hdr.appendChild(countEl);wrap.appendChild(hdr);
+    var barBg=document.createElement('div');
+    barBg.style.cssText='background:#ebebeb;border-radius:100px;height:8px;overflow:hidden;margin-bottom:10px';
+    var barFill=document.createElement('div');
+    barFill.style.cssText='height:100%;width:'+pct+'%;background:linear-gradient(90deg,#c8f500,#aadd00);border-radius:100px;transition:width .4s ease';
+    barBg.appendChild(barFill);wrap.appendChild(barBg);
+    var btn=document.createElement('button');
+    btn.id='suIctimBtn';btn.textContent='Su İçtim';
+    btn.style.cssText='width:100%;background:linear-gradient(135deg,#c8f500,#aadd00);border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:900;color:#1a1a1a;cursor:pointer;box-shadow:0 4px 14px rgba(200,245,0,.4)';
+    wrap.appendChild(btn);
+    return wrap;
+  }
+
+  function buildUyku(uyku){
+    var son=uyku.slice(-4).reverse();
+    var avg=uyku.length>0?(uyku.slice(-7).reduce(function(s,u){return s+(+u.sure||0);},0)/Math.min(uyku.length,7)).toFixed(1):0;
+    var wrap=document.createElement('div');
+    wrap.style.cssText='background:#fff;padding:14px 16px;margin-bottom:1px';
+    var hdr=document.createElement('div');
+    hdr.style.cssText='display:flex;justify-content:space-between;align-items:center;margin-bottom:10px';
+    var title=document.createElement('div');title.style.cssText='font-size:15px;font-weight:800;color:#1a1a1a';title.textContent='🌛 Uyku Takibi';
+    var addBtn=document.createElement('button');
+    addBtn.id='auBtn';addBtn.textContent='+ Kaydet';
+    addBtn.style.cssText='background:transparent;border:1.5px solid #e0e0e0;border-radius:100px;padding:5px 12px;font-size:12px;font-weight:800;cursor:pointer;color:#1a1a1a';
+    hdr.appendChild(title);hdr.appendChild(addBtn);wrap.appendChild(hdr);
+    var avgRow=document.createElement('div');
+    avgRow.style.cssText='display:flex;align-items:center;gap:12px;margin-bottom:10px';
+    var avgBox=document.createElement('div');
+    avgBox.style.cssText='text-align:center;background:#f8f8f8;border-radius:10px;padding:10px 14px';
+    avgBox.innerHTML='<div style="font-size:22px;font-weight:900;color:#8b5cf6">'+avg+'</div><div style="font-size:10px;color:#ccc">saat/gece</div>';
+    var status=document.createElement('div');
+    status.style.cssText='font-size:13px;color:#aaa';
+    status.textContent=+avg>=7?'✅ Yeterli uyku':'⚠️ Az uyku alınıyor';
+    avgRow.appendChild(avgBox);avgRow.appendChild(status);wrap.appendChild(avgRow);
+    if(son.length===0){var empty=document.createElement('div');empty.style.cssText='text-align:center;color:#ccc;font-size:13px;padding:8px 0';empty.textContent='Henüz kayıt yok';wrap.appendChild(empty);}
+    son.forEach(function(u,i){
+      var row=document.createElement('div');
+      row.style.cssText='display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f5f5f5';
+      var dateEl=document.createElement('div');dateEl.style.cssText='font-size:11px;color:#ccc;width:50px;flex-shrink:0';dateEl.textContent=S.pd(u.tarih).split(' ')[0];
+      var barBg=document.createElement('div');barBg.style.cssText='flex:1;background:#ebebeb;border-radius:100px;height:7px;overflow:hidden';
+      var barFill=document.createElement('div');barFill.style.cssText='height:100%;width:'+Math.min(Math.round((+u.sure/10)*100),100)+'%;background:linear-gradient(90deg,#c4b5fd,#7c3aed);border-radius:100px';
+      barBg.appendChild(barFill);
+      var valEl=document.createElement('div');valEl.style.cssText='font-size:12px;font-weight:800;color:#8b5cf6;min-width:28px;text-align:right';valEl.textContent=u.sure+'s';
+      var delBtn=document.createElement('button');
+      delBtn.className='del-uyku-btn';delBtn.dataset.i=uyku.length-1-i;delBtn.textContent='✕';
+      delBtn.style.cssText='background:#f0f0f0;border:none;border-radius:50%;width:22px;height:22px;font-size:10px;cursor:pointer';
+      row.appendChild(dateEl);row.appendChild(barBg);row.appendChild(valEl);row.appendChild(delBtn);
+      wrap.appendChild(row);
+    });
+    return wrap;
+  }
+
+  function buildAnaliz(p,olcumler,an,calc){
+    var wrap=document.createElement('div');
+    wrap.style.cssText='background:#fff;padding:14px 16px;margin-bottom:1px';
+    var hdr=document.createElement('div');
+    hdr.style.cssText='display:flex;justify-content:space-between;align-items:center;margin-bottom:10px';
+    var title=document.createElement('div');title.style.cssText='font-size:15px;font-weight:800;color:#1a1a1a';title.textContent='Vücut Bilgileri & Analiz';
+    var olcumBtn=document.createElement('button');
+    olcumBtn.id='yolcBtn';olcumBtn.textContent='+ Ölçüm';
+    olcumBtn.style.cssText='background:linear-gradient(135deg,#c8f500,#aadd00);border:none;border-radius:100px;padding:7px 14px;font-size:12px;font-weight:800;color:#1a1a1a;cursor:pointer;box-shadow:0 3px 10px rgba(200,245,0,.4)';
+    hdr.appendChild(title);hdr.appendChild(olcumBtn);wrap.appendChild(hdr);
+    // Kilo display
+    var kiloDiv=document.createElement('div');
+    kiloDiv.style.cssText='margin-bottom:4px';
+    kiloDiv.innerHTML='<span style="font-size:38px;font-weight:900;line-height:1;color:#1a1a1a">'+(p.kilo||'—')+'</span><span style="font-size:18px;color:#aaa;font-weight:700;margin-left:4px">kg</span>';
+    wrap.appendChild(kiloDiv);
+    if(p.boy||p.yas||p.cinsiyet){
+      var subDiv=document.createElement('div');
+      subDiv.style.cssText='font-size:12px;color:#aaa;margin-bottom:12px';
+      subDiv.textContent=(p.boy?p.boy+' cm':'')+' '+(p.yas?'· '+p.yas+' yaş':'')+' '+(p.cinsiyet?'· '+p.cinsiyet:'');
+      wrap.appendChild(subDiv);
+    }
+    // 3x3 grid
+    var gridLabels=[['Göğüs',olcumler.gogus],['Bel',olcumler.bel],['Kalça',olcumler.kalca],['Biceps Sağ',olcumler.biceps_sag],['Biceps Sol',olcumler.biceps_sol],['Omuz',olcumler.omuz],['Uyluk Sağ',olcumler.uyluk_sag],['Uyluk Sol',olcumler.uyluk_sol],['Boyun',olcumler.boyun]];
+    var grid=document.createElement('div');
+    grid.style.cssText='display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px';
+    gridLabels.forEach(function(gl){
+      var cell=document.createElement('div');
+      cell.style.cssText='background:#f8f8f8;border-radius:10px;padding:10px 6px;text-align:center';
+      cell.innerHTML='<div style="font-size:18px;font-weight:900;color:#1a1a1a;line-height:1">'+(gl[1]||'—')+'</div><div style="font-size:10px;color:#bbb;margin-top:2px">'+gl[0]+'</div>';
+      grid.appendChild(cell);
+    });
+    wrap.appendChild(grid);
+    if(!an){
+      var noData=document.createElement('div');
+      noData.style.cssText='background:rgba(200,245,0,.1);border:1px solid #aadd00;border-radius:10px;padding:12px;font-size:13px;color:#7aaa00;text-align:center';
+      noData.textContent='📐 Bel ve Boyun ölçümü ekle — yağ oranı için gerekli.';
+      wrap.appendChild(noData);
+      return wrap;
+    }
+    // Yağ analiz banner
+    var anBanner=document.createElement('div');
+    anBanner.style.cssText='background:linear-gradient(135deg,'+an.tipRenk+','+an.saglikRenk+');border-radius:14px;padding:14px 16px;margin-bottom:10px;color:#fff';
+    anBanner.innerHTML='<div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;opacity:.8;margin-bottom:4px">Vücut Yağ Oranı</div>'+
+      '<div style="font-size:44px;font-weight:900;line-height:1.1">%'+an.fat+'</div>'+
+      '<div style="display:flex;gap:6px;margin-top:6px">'+
+        '<span style="background:rgba(255,255,255,.25);border-radius:100px;padding:2px 10px;font-size:11px;font-weight:800">'+an.saglikDurum+'</span>'+
+        '<span style="background:rgba(255,255,255,.25);border-radius:100px;padding:2px 10px;font-size:11px;font-weight:800">'+an.tip+'</span>'+
+      '</div>'+
+      '<div style="font-size:11px;opacity:.8;margin-top:4px">'+an.tipAciklama+'</div>';
+    wrap.appendChild(anBanner);
+    // BMI + Bel/Boy cards
+    var cards2=document.createElement('div');
+    cards2.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px';
+    [[an.bmi,'BMI',an.bmiKat,an.bmiRenk],[an.belBoy,'Bel/Boy Oranı',an.bbKat,an.bbRenk]].forEach(function(c){
+      var card=document.createElement('div');
+      card.style.cssText='background:#f8f8f8;border-radius:12px;padding:12px;text-align:center';
+      card.innerHTML='<div style="font-size:22px;font-weight:900;color:'+c[3]+'">'+c[0]+'</div>'+
+        '<div style="font-size:11px;color:#aaa;margin-top:2px">'+c[1]+'</div>'+
+        '<div style="font-size:11px;font-weight:700;margin-top:4px;padding:2px 8px;border-radius:100px;display:inline-block;background:'+c[3]+'22;color:'+c[3]+'">'+c[2]+'</div>';
+      cards2.appendChild(card);
+    });
+    wrap.appendChild(cards2);
+    // Sağlıklı aralık bar
+    var aralBar=document.createElement('div');
+    aralBar.style.cssText='background:#f8f8f8;border-radius:12px;padding:12px';
+    var arl=an.arl;
+    aralBar.innerHTML=
+      '<div style="font-size:12px;color:#666;margin-bottom:6px">Sağlıklı Yağ Aralığı ('+(an.C===1?'Erkek':'Kadın')+')</div>'+
+      '<div style="display:flex;justify-content:space-between;font-size:10px;color:#ccc;margin-bottom:4px"><span>Çok Düşük</span><span>Sağlıklı</span><span>Yüksek</span><span>Çok Yüksek</span></div>'+
+      '<div style="height:8px;border-radius:100px;overflow:hidden;display:flex">'+
+        '<div style="flex:'+(arl.ia-3)+';background:#4a9ee0"></div>'+
+        '<div style="flex:'+(arl.iu-arl.ia)+';background:#5cb800"></div>'+
+        '<div style="flex:'+(arl.ust-arl.iu)+';background:#f0a830"></div>'+
+        '<div style="flex:'+(60-arl.ust)+';background:#ff4d4d"></div>'+
+      '</div>'+
+      '<div style="font-size:11px;color:#aaa;margin-top:5px">Senin değerin: <strong style="color:'+an.saglikRenk+'">%'+an.fat+'</strong> · Sağlıklı: %'+arl.ia+'–%'+arl.iu+'</div>';
+    wrap.appendChild(aralBar);
+    return wrap;
+  }
+
+  function buildFoto(foto){
+    var wrap=document.createElement('div');
+    wrap.style.cssText='background:#fff;padding:14px 16px;margin-bottom:1px';
+    var title=document.createElement('div');
+    title.style.cssText='font-size:12px;font-weight:800;color:#1a1a1a;letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:6px';
+    title.innerHTML='<span>📷</span> İLERLEME FOTOĞRAFLARI';
+    wrap.appendChild(title);
+    var grid=document.createElement('div');
+    grid.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:12px';
+    ['ilk','son'].forEach(function(key){
+      var slot=document.createElement('div');
+      slot.id='fs'+key.charAt(0);
+      slot.style.cssText='background:#f4f4f4;border-radius:14px;overflow:hidden;aspect-ratio:3/4;position:relative;cursor:pointer;border:2px dashed #e0e0e0';
+      if(foto[key]){
+        var img=document.createElement('img');img.src=foto[key];img.style.cssText='width:100%;height:100%;object-fit:cover;display:block';
+        var lbl=document.createElement('div');lbl.style.cssText='position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.5);color:#fff;font-size:11px;font-weight:800;text-align:center;padding:5px;letter-spacing:.06em';lbl.textContent=key.toUpperCase()+' HAL';
+        var delBtn=document.createElement('button');
+        delBtn.id='fd'+key.charAt(0);delBtn.textContent='✕';
+        delBtn.style.cssText='position:absolute;top:6px;right:6px;background:rgba(0,0,0,.5);border:none;color:#fff;border-radius:50%;width:26px;height:26px;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2';
+        slot.appendChild(img);slot.appendChild(lbl);slot.appendChild(delBtn);
+      } else {
+        slot.innerHTML='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:6px;color:#ccc"><span style="font-size:28px">📷</span><p style="font-size:12px;font-weight:700;text-align:center">'+(key==='ilk'?'İlk hal':'Son hal')+'</p></div>';
+      }
+      grid.appendChild(slot);
+    });
+    wrap.appendChild(grid);
+    return wrap;
+  }
+
+  function buildMeals(m,ogunler){
+    var wrap=document.createElement('div');
+    wrap.style.cssText='background:linear-gradient(160deg,#c8f500 0%,#aadd00 55%,#aacc00 100%);border-radius:18px 18px 0 0;padding:14px 16px 0;margin-top:4px';
+    var addBtn=document.createElement('button');
+    addBtn.id='amBtn';addBtn.textContent='+ Öğün Ekle';
+    addBtn.style.cssText='width:100%;background:#fff;border:none;border-radius:100px;padding:14px;font-size:15px;font-weight:800;color:#1a1a1a;box-shadow:0 4px 14px rgba(0,0,0,.1);cursor:pointer;margin-bottom:10px';
+    wrap.appendChild(addBtn);
+    var bolumler=[{k:'kahvalti',l:'Kahvaltı'},{k:'ogle',l:'Öğle'},{k:'aksam',l:'Akşam'},{k:'ara',l:'Ara Öğün'}];
+    bolumler.forEach(function(b){
+      var tot=ogunler.filter(function(o){return o.bolum===b.k;}).reduce(function(s,o){return s+(+(o.kalori||0));},0);
+      var hd=b.k==='kahvalti'?Math.round((m.kalori||2200)*.2):b.k==='ogle'||b.k==='aksam'?Math.round((m.kalori||2200)*.35):Math.round((m.kalori||2200)*.1);
+      var row=document.createElement('div');
+      row.className='mrow';row.dataset.bolum=b.k;
+      row.style.cssText='display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid rgba(0,0,0,.08);cursor:pointer';
+      var nameEl=document.createElement('span');nameEl.style.cssText='font-size:14px;font-weight:800;color:#1a1a1a';nameEl.textContent=b.l;
+      var kcalEl=document.createElement('span');kcalEl.style.cssText='font-size:13px;font-weight:700;color:rgba(0,0,0,.45)';kcalEl.textContent=tot+'/'+hd+' Kcal';
+      row.appendChild(nameEl);row.appendChild(kcalEl);
+      wrap.appendChild(row);
+    });
+    var spacer=document.createElement('div');spacer.style.height='10px';wrap.appendChild(spacer);
+    return wrap;
+  }
+
+  /* ===== MODALS ===== */
+
+  function setupFoto(el,data,cb){
+    var fi=document.getElementById('fotoInput');var ft=null;
+    function trig(t){ft=t;fi.value='';try{fi.click();}catch(e){}}
+    var fsi=el.querySelector('#fsi');if(fsi)fsi.addEventListener('click',function(e){if(e.target.id==='fdi')return;trig('ilk');});
+    var fss=el.querySelector('#fss');if(fss)fss.addEventListener('click',function(e){if(e.target.id==='fds')return;trig('son');});
+    var fdi=el.querySelector('#fdi');if(fdi)fdi.addEventListener('click',function(e){e.stopPropagation();D.confirm('İlk hal fotoğrafı silinsin mi?').then(function(ok){if(ok){data.foto.ilk=null;S.save(data);cb();}});});
+    var fds=el.querySelector('#fds');if(fds)fds.addEventListener('click',function(e){e.stopPropagation();D.confirm('Son hal fotoğrafı silinsin mi?').then(function(ok){if(ok){data.foto.son=null;S.save(data);cb();}});});
+    fi.onchange=null;
+    fi.addEventListener('change',function h(e){
+      var f=e.target.files&&e.target.files[0];if(!f||!ft){fi.value='';return;}
+      if(f.size>3*1024*1024){D.alert('Fotoğraf çok büyük (maks 3MB).');fi.value='';return;}
+      var r=new FileReader();
+      r.onload=function(ev){if(!data.foto)data.foto={};data.foto[ft]=ev.target.result;S.save(data);ft=null;fi.value='';cb();};
+      r.onerror=function(){D.alert('Fotoğraf yüklenemedi.');fi.value='';};
+      r.readAsDataURL(f);fi.removeEventListener('change',h);
+    });
+  }
+
+  function oChoice(data,date,bolum,cb){
+    M.open('Öğün Ekle','<div style="display:flex;flex-direction:column;gap:12px"><button class="btn bl bf" id="oc1" style="padding:16px;font-size:16px;border-radius:12px">🍽️ Tariften Seç</button><button class="btn bo bf" id="oc2" style="padding:16px;font-size:16px;border-radius:12px">✏️ Yeni Öğün Gir</button></div>');
+    M.body().querySelector('#oc1').onclick=function(){M.close();setTimeout(function(){oTarif(data,date,bolum,cb);},200);};
+    M.body().querySelector('#oc2').onclick=function(){M.close();setTimeout(function(){oManuel(data,date,bolum,cb);},200);};
+  }
+
+  function oTarif(data,date,bolum,cb){
+    var tr=data.tarifler||[];if(!tr.length){D.alert('Önce Tarifler bölümüne yemek ekle!');return;}
+    if(!data.ogunGecmisi)data.ogunGecmisi={};if(!data.ogunGecmisi[date])data.ogunGecmisi[date]=[];
+    var bs=[{k:'kahvalti',l:'Kahvaltı'},{k:'ogle',l:'Öğle'},{k:'aksam',l:'Akşam'},{k:'ara',l:'Ara Öğün'}];
+    var html2='<div class="fg"><label class="fl">Öğün</label><select class="fs" id="obsel">'+bs.map(function(b){return'<option value="'+b.k+'" '+(( bolum||'kahvalti')===b.k?'selected':'')+'>'+b.l+'</option>';}).join('')+'</select></div>'+
+      tr.map(function(t){return'<div class="rc" style="margin-bottom:8px;padding:12px" data-id="'+t.id+'">'+(t.foto?'<img src="'+t.foto+'" style="width:100%;height:80px;object-fit:cover;border-radius:10px;margin-bottom:8px"/>' :'')+
+        '<div style="font-size:14px;font-weight:800">'+t.ad+'</div>'+
+        '<div style="font-size:12px;color:#aaa;margin-top:4px">'+(t.kalori?'🔥 '+t.kalori+' kcal':'')+(t.protein?' · P:'+t.protein+'g':'')+(t.karbonhidrat?' · K:'+t.karbonhidrat+'g':'')+(t.yag?' · Y:'+t.yag+'g':'')+'</div></div>';}).join('');
+    M.open('Tariften Seç',html2);
+    M.body().querySelectorAll('[data-id]').forEach(function(item){item.onclick=function(){var t=tr.find(function(x){return x.id===item.dataset.id;});if(!t)return;var b=document.getElementById('obsel').value;data.ogunGecmisi[date].push({ad:t.ad,bolum:b,kalori:+(t.kalori||0),protein:+(t.protein||0),karbonhidrat:+(t.karbonhidrat||0),yag:+(t.yag||0),lif:+(t.lif||0),vitamin_c:+(t.vitamin_c||0),demir:+(t.demir||0),kalsiyum:+(t.kalsiyum||0),magnezyum:+(t.magnezyum||0)});S.save(data);cb&&cb();M.close();};});
+  }
+
+  function oManuel(data,date,bolum,cb){
+    if(!data.ogunGecmisi)data.ogunGecmisi={};if(!data.ogunGecmisi[date])data.ogunGecmisi[date]=[];
+    var bs=[{k:'kahvalti',l:'Kahvaltı'},{k:'ogle',l:'Öğle'},{k:'aksam',l:'Akşam'},{k:'ara',l:'Ara Öğün'}];
+    M.open('Yeni Öğün','<div class="fg"><label class="fl">Öğün Adı</label><input class="fi" id="oad" placeholder="Tavuk, yoğurt..."/></div><div class="fg"><label class="fl">Öğün</label><select class="fs" id="obol">'+bs.map(function(b){return'<option value="'+b.k+'" '+((bolum||'kahvalti')===b.k?'selected':'')+'>'+b.l+'</option>';}).join('')+'</select></div><div class="fr"><div class="fg"><label class="fl">Kalori</label><input class="fi" id="okal" type="number"/></div><div class="fg"><label class="fl">Protein (g)</label><input class="fi" id="opro" type="number"/></div></div><div class="fr"><div class="fg"><label class="fl">Karbonhidrat (g)</label><input class="fi" id="okar" type="number"/></div><div class="fg"><label class="fl">Yağ (g)</label><input class="fi" id="oyag" type="number"/></div></div><button class="btn bl bf" id="saveOM">Ekle</button>');
+    M.body().querySelector('#saveOM').onclick=function(){var ad=document.getElementById('oad').value.trim();if(!ad){D.alert('Öğün adı zorunlu!');return;}var b=document.getElementById('obol').value;data.ogunGecmisi[date].push({ad:ad,bolum:b,kalori:+(document.getElementById('okal').value||0),protein:+(document.getElementById('opro').value||0),karbonhidrat:+(document.getElementById('okar').value||0),yag:+(document.getElementById('oyag').value||0),lif:0,vitamin_c:0,demir:0,kalsiyum:0,magnezyum:0});S.save(data);cb&&cb();M.close();};
+  }
+
+  function oOlcum(data,cb){
+    var o=data.olcumler,p=data.profil,isK=p.cinsiyet==='Kadın';
+    M.open('Yeni Ölçüm','<div class="fr"><div class="fg"><label class="fl">Kilo (kg)</label><input class="fi" id="okilo" type="number" value="'+(p.kilo||'')+'"></div><div class="fg"><label class="fl">Not</label><input class="fi" id="onot" placeholder="Sabah..."></div></div><div class="ibox">Bel + Boyun girilirse yağ oranı hesaplanır</div><div class="fr"><div class="fg"><label class="fl">Bel (cm)</label><input class="fi" id="obel" type="number" value="'+(o.bel||'')+'"></div><div class="fg"><label class="fl">Boyun (cm)</label><input class="fi" id="oboyun" type="number" value="'+(o.boyun||'')+'"></div></div>'+(isK?'<div class="fg"><label class="fl">Kalça (cm)*</label><input class="fi" id="okalca" type="number" value="'+(o.kalca||'')+'"></div>':'<div class="fr"><div class="fg"><label class="fl">Kalça (cm)</label><input class="fi" id="okalca" type="number" value="'+(o.kalca||'')+'"></div><div class="fg"><label class="fl">Göğüs (cm)</label><input class="fi" id="ogogus" type="number" value="'+(o.gogus||'')+'"></div></div>')+'<div class="fr"><div class="fg"><label class="fl">Omuz (cm)</label><input class="fi" id="oomuz" type="number" value="'+(o.omuz||'')+'"></div><div class="fg"><label class="fl">Uyluk (cm)</label><input class="fi" id="obacak" type="number" value="'+(o.bacak||'')+'"></div></div>'+(isK?'<div class="fg"><label class="fl">Göğüs (cm)</label><input class="fi" id="ogogus" type="number" value="'+(o.gogus||'')+'"></div>':'')+'<button class="btn bl bf" id="saveOlc">Kaydet & Analiz Et</button>');
+    M.body().querySelector('#saveOlc').onclick=function(){var kilo=document.getElementById('okilo').value;data.profil.kilo=kilo;['bel','boyun','kalca','omuz','bacak'].forEach(function(k){var el2=document.getElementById('o'+k);if(el2)data.olcumler[k]=el2.value;});data.olcumler.gogus=document.getElementById('ogogus')?document.getElementById('ogogus').value:(o.gogus||'');var an2=C.vag(data.profil,data.olcumler);if(!data.olcumGecmisi)data.olcumGecmisi=[];data.olcumGecmisi.push({id:S.uid(),tarih:S.today(),kilo:kilo,not:document.getElementById('onot').value,fat:an2?an2.fat:null,bmi:an2?an2.bmi:null,tip:an2?an2.tip:null,olcumler:Object.assign({},data.olcumler)});if(!data.profil.manuelMod){var c3=C.hesapla(data.profil);if(c3)['kalori','protein','karbonhidrat','yag','lif','vitamin_c','demir','kalsiyum','magnezyum'].forEach(function(k){data.macros[k]=c3[k];});}S.save(data);cb&&cb();M.close();};
+  }
+
+  function oUyku(data,cb){
+    M.open('Uyku Kaydı','<div class="fr"><div class="fg"><label class="fl">Tarih</label><input class="fi" id="utar" type="date" value="'+S.today()+'"></div><div class="fg"><label class="fl">Süre (saat)</label><input class="fi" id="usure" type="number" step="0.5" placeholder="7.5"></div></div><div class="fr"><div class="fg"><label class="fl">Yatış</label><input class="fi" id="uyat" type="time" value="23:00"></div><div class="fg"><label class="fl">Kalkış</label><input class="fi" id="ukal" type="time" value="07:00"></div></div><button class="btn bl bf" id="saveUy">Kaydet</button>');
+    M.body().querySelector('#saveUy').onclick=function(){var sure=document.getElementById('usure').value;if(!sure){var y=document.getElementById('uyat').value,k2=document.getElementById('ukal').value;if(y&&k2){var yh=+y.split(':')[0],ym=+y.split(':')[1],kh=+k2.split(':')[0],km=+k2.split(':')[1];var d2=(kh*60+km)-(yh*60+ym);if(d2<0)d2+=1440;sure=(d2/60).toFixed(1);}else sure='7';}if(!data.uyku)data.uyku=[];data.uyku.push({id:S.uid(),tarih:document.getElementById('utar').value,sure:+sure,yatis:document.getElementById('uyat').value,kalkis:document.getElementById('ukal').value,kalite:3});S.save(data);cb&&cb();M.close();};
+  }
+
+  return{render};
+})();
+
+/* ===== PAGE SPOR ===== */
+const PageSpor=(() => {
+  let tSec=0,tRun=false,tInt=null;
+  function render(data){
+    const el=document.getElementById('page-spor');const egz=data.egzersizler||[];
+    el.innerHTML=`<div class="card"><div style="font-size:12px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">⏱ Dinlenme Zamanlayıcı</div><div class="tdisp" id="tDisp">${fmt(tSec)}</div><div style="display:flex;gap:10px;justify-content:center;margin-top:10px"><button class="btn bl" id="tSS">▶ Başlat</button><button class="btn bo" id="tRes">↺ Sıfırla</button></div><div class="tpresets mt8"><button class="tpb" data-sec="30">30s</button><button class="tpb" data-sec="60">1dk</button><button class="tpb" data-sec="90">1:30</button><button class="tpb" data-sec="120">2dk</button><button class="tpb" data-sec="180">3dk</button><button class="tpb" id="tCust">✎ Özel</button></div></div><div class="fb"><div class="st" style="margin-top:0">Antrenman</div><button class="btn bl bsm" id="addEgz">+ Hareket</button></div>${egz.length===0?`<div class="es"><div class="ei">🏋️</div><div class="ett">Program yok</div><div class="ed">+ Hareket ekle ile başla.</div></div>`:egz.map(rEgz).join('')}`;
+    {const _qt=el.querySelector('#tSS');if(_qt)_qt.onclick=()=>toggleT(el);}
+    {const _qt=el.querySelector('#tRes');if(_qt)_qt.onclick=()=>{stopT();tSec=0;el.querySelector('#tDisp').textContent='00:00';el.querySelector('#tSS').textContent='▶ Başlat';};}
+    el.querySelectorAll('.tpb[data-sec]').forEach(b=>b.onclick=()=>{stopT();tSec=+b.dataset.sec;el.querySelector('#tDisp').textContent=fmt(tSec);el.querySelector('#tSS').textContent='▶ Başlat';});
+    {const _qt=el.querySelector('#tCust');if(_qt)_qt.onclick=()=>D.prompt('Kaç saniye?','120','').then(v=>{if(v&&!isNaN(v)){stopT();tSec=+v;el.querySelector('#tDisp').textContent=fmt(tSec);el.querySelector('#tSS').textContent='▶ Başlat';}});}
+    el.querySelectorAll('.spill').forEach(p=>p.onclick=()=>p.classList.toggle('done'));
+    {const _qt=el.querySelector('#addEgz');if(_qt)_qt.onclick=()=>openEgz(data);}
+    el.querySelectorAll('.eedit').forEach(b=>b.onclick=()=>{const e=data.egzersizler.find(x=>x.id===b.dataset.id);if(e)openEgz(data,e);});
+    el.querySelectorAll('.edel').forEach(b=>b.onclick=()=>D.confirm('Bu hareketi silmek istiyor musun?').then(ok=>{if(ok){data.egzersizler=data.egzersizler.filter(x=>x.id!==b.dataset.id);S.save(data);render(data);}}));
+  }
+  function rEgz(e){const tc={Ağırlık:'blime',Kardiyo:'bgreen',Calisthenics:'bblue',Esneme:'bgray'};return`<div class="exc"><div class="fb" style="margin-bottom:10px"><div><div style="font-size:16px;font-weight:800">${e.ad}</div><span class="badge ${tc[e.tip]||'blime'}" style="margin-top:4px">${e.tip}</span></div><div class="flex g8"><button class="ib eedit" data-id="${e.id}">✏️</button><button class="ib edel" data-id="${e.id}">🗑️</button></div></div>${e.setler.length>0?`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(62px,1fr));gap:6px">${e.setler.map(s=>`<div class="spill" style="line-height:1.4">${s.agirlik?'<div style=\"font-size:10px;color:#999;line-height:1\">'+(s.agirlik)+'kg</div>':''}${s.tekrar}x</div>`).join('')}</div>`:''}${e.notlar?`<div class="tm mt8">📝 ${e.notlar}</div>`:''}</div>`;}
+  function openEgz(data,ex){
+    const isE=!!ex,e=ex||{id:S.uid(),ad:'',tip:'Ağırlık',setler:[],notlar:''};let sl=[...e.setler];
+    function rs(){const c=document.getElementById('sCont');if(!c)return;c.innerHTML=sl.map((s,i)=>`<div style="display:grid;grid-template-columns:1fr 1fr 32px;gap:8px;align-items:center;margin-bottom:8px"><input class="fi" id="st${i}" type="number" value="${s.tekrar}" placeholder="Tekrar"><input class="fi" id="sa${i}" type="number" value="${s.agirlik||''}" placeholder="Kg"><button class="ib dst" data-i="${i}">✕</button></div>`).join('')+`<button class="btn bo bsm" id="addS">+ Set</button>`;c.querySelectorAll('.dst').forEach(b=>b.onclick=()=>{sl.splice(+b.dataset.i,1);rs();});c.querySelector('#addS')?.addEventListener('click',()=>{sl.push({tekrar:10,agirlik:''});rs();});}
+    M.open(isE?'Hareketi Düzenle':'Yeni Hareket',`<div class="fg"><label class="fl">Hareket Adı</label><input class="fi" id="ead" value="${e.ad}" placeholder="Bench Press..."></div><div class="fg"><label class="fl">Tip</label><select class="fs" id="etip">${['Ağırlık','Kardiyo','Calisthenics','Esneme'].map(t=>`<option ${e.tip===t?'selected':''}>${t}</option>`).join('')}</select></div><div class="st">Setler</div><div id="sCont"></div><div class="fg mt12"><label class="fl">Notlar</label><textarea class="fta" id="enot">${e.notlar||''}</textarea></div><button class="btn bl bf" id="sEgz">${isE?'Güncelle':'Ekle'}</button>${isE?'<button class="btn bd bf mt8" id="dEgz">Sil</button>':''}`);
+    rs();
+    M.body().querySelector('#sEgz').onclick=()=>{e.ad=document.getElementById('ead').value;e.tip=document.getElementById('etip').value;e.setler=sl.map((_,i)=>({tekrar:+document.getElementById('st'+i)?.value||0,agirlik:document.getElementById('sa'+i)?.value||''}));e.notlar=document.getElementById('enot').value;if(isE){const idx=data.egzersizler.findIndex(x=>x.id===e.id);if(idx!==-1)data.egzersizler[idx]=e;}else data.egzersizler.push(e);S.save(data);render(data);M.close();};
+    if(isE)M.body().querySelector('#dEgz')?.addEventListener('click',()=>{data.egzersizler=data.egzersizler.filter(x=>x.id!==e.id);S.save(data);render(data);M.close();});
+  }
+  function fmt(s){return`${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`;}
+  function toggleT(el){if(tSec<=0&&!tRun){D.alert('Önce bir süre seçin.','Zamanlayıcı');return;}if(tRun){stopT();el.querySelector('#tSS').textContent='▶ Devam';}else{tRun=true;el.querySelector('#tSS').textContent='⏸ Duraklat';tInt=setInterval(()=>{if(tSec>0){tSec--;const d=document.getElementById('tDisp');if(d)d.textContent=fmt(tSec);if(tSec===0){stopT();if(navigator.vibrate)navigator.vibrate([200,100,200]);const b=document.getElementById('tSS');if(b)b.textContent='▶ Başlat';}}else{stopT();const b=document.getElementById('tSS');if(b)b.textContent='▶ Başlat';}},1000);}}
+  function stopT(){clearInterval(tInt);tRun=false;}
+  return{render};
+})();
+
+
+/* ===== PAGE TARİFLER ===== */
+const PageTarifler=(() => {
+  function render(data){
+    const el=document.getElementById('page-tarifler');const cats=['Tümü','Kahvaltı','Öğle','Akşam','Ara Öğün','İçecek'];
+    el.innerHTML=`<div class="fb" style="margin-bottom:14px"><div style="font-size:22px;font-weight:900">Tariflerim 🍽️</div><button class="btn bl bsm" id="addTarif">+ Tarif</button></div><div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none">${cats.map(c=>`<button class="btn bsm ${c==='Tümü'?'bl':'bo'} catb" data-cat="${c}" style="white-space:nowrap;border-radius:100px">${c}</button>`).join('')}</div><div id="tList" style="margin-top:12px">${rList(data.tarifler,'Tümü')}</div>`;
+    {const _qt=el.querySelector('#addTarif');if(_qt)_qt.onclick=()=>openT(data);}
+    el.querySelectorAll('.catb').forEach(b=>b.onclick=()=>{el.querySelectorAll('.catb').forEach(x=>{x.classList.remove('bl');x.classList.add('bo');});b.classList.add('bl');b.classList.remove('bo');el.querySelector('#tList').innerHTML=rList(data.tarifler,b.dataset.cat);attachT(el,data);});
+    attachT(el,data);
+  }
+  function rList(tr,cat){const f=cat==='Tümü'?tr:tr.filter(t=>t.kategori===cat);if(!f.length)return`<div class="es"><div class="ei">📖</div><div class="ett">Tarif yok</div><div class="ed">+ Tarif butonuyla ekle.</div></div>`;return f.map(t=>`<div class="rc" data-id="${t.id}">${t.foto?`<img src="${t.foto}" style="width:100%;height:130px;object-fit:cover;border-radius:12px;margin-bottom:10px"/>`:''}  <div style="font-size:16px;font-weight:800;margin-bottom:8px">${t.ad}</div><div style="display:flex;gap:6px;flex-wrap:wrap">${t.sure?`<span class="badge bblue">⏱ ${t.sure}dk</span>`:''}${t.kalori?`<span class="badge blime">🔥 ${t.kalori} kcal</span>`:''}${t.protein?`<span class="badge bblue">P:${t.protein}g</span>`:''}${t.kategori?`<span class="badge bgreen">${t.kategori}</span>`:''}</div>${t.malzemeler?`<div class="tm mt8">${t.malzemeler.slice(0,60)}${t.malzemeler.length>60?'…':''}</div>`:''}</div>`).join('');}
+  function attachT(el,data){el.querySelectorAll('.rc').forEach(card=>card.onclick=()=>{const t=data.tarifler.find(x=>x.id===card.dataset.id);if(t)openTDetay(t,data);});}
+  function openTDetay(t,data){
+    M.open(t.ad,`${t.foto?`<img src="${t.foto}" style="width:100%;height:150px;object-fit:cover;border-radius:14px;margin-bottom:14px"/>`:''}<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">${t.sure?`<span class="badge bblue">⏱ ${t.sure}dk</span>`:''}${t.kalori?`<span class="badge blime">🔥 ${t.kalori} kcal</span>`:''}${t.kategori?`<span class="badge bgreen">${t.kategori}</span>`:''}</div>${(t.kalori||t.protein||t.karbonhidrat||t.yag)?`<div class="st">Makro</div><div class="card" style="margin-bottom:12px"><div class="fr3">${t.kalori?`<div style="text-align:center"><div style="font-size:20px;font-weight:900;color:var(--lime-dark)">${t.kalori}</div><div class="tm">kcal</div></div>`:''}${t.protein?`<div style="text-align:center"><div style="font-size:20px;font-weight:900;color:#4a9ee0">${t.protein}g</div><div class="tm">Protein</div></div>`:''}${t.karbonhidrat?`<div style="text-align:center"><div style="font-size:20px;font-weight:900;color:#f0a830">${t.karbonhidrat}g</div><div class="tm">Karb</div></div>`:''}</div></div>`:''} ${t.malzemeler?`<div class="st">Malzemeler</div><div class="card" style="white-space:pre-wrap;font-size:14px;line-height:1.7;font-family:var(--font-body)">${t.malzemeler}</div>`:''} ${t.hazirlanis?`<div class="st">Hazırlanışı</div><div class="card" style="white-space:pre-wrap;font-size:14px;line-height:1.7;font-family:var(--font-body)">${t.hazirlanis}</div>`:''} ${t.notlar?`<div class="st">Notlar</div><div class="tm">${t.notlar}</div>`:''} <div style="display:flex;gap:8px;margin-top:16px"><button class="btn bo" style="flex:1" id="etBtn">✏️ Düzenle</button><button class="btn bd" style="flex:1" id="dtBtn">🗑️ Sil</button></div>`);
+    M.body().querySelector('#etBtn').onclick=()=>{M.close();setTimeout(()=>openT(data,t),200);};
+    M.body().querySelector('#dtBtn').onclick=()=>D.confirm('Bu tarifi silmek istiyor musun?').then(ok=>{if(ok){data.tarifler=data.tarifler.filter(x=>x.id!==t.id);S.save(data);render(data);M.close();}});
+  }
+  function openT(data,ex){
+    const isE=!!ex,t=ex||{id:S.uid(),ad:'',kategori:'Öğle',sure:'',kalori:'',protein:'',karbonhidrat:'',yag:'',lif:'',vitamin_c:'',demir:'',kalsiyum:'',magnezyum:'',malzemeler:'',hazirlanis:'',notlar:'',foto:null};
+    let tfoto=t.foto||null;
+    M.open(isE?'Tarifi Düzenle':'Yeni Tarif',`<div id="tfprev" style="margin-bottom:12px">${tfoto?`<div style="position:relative"><img src="${tfoto}" style="width:100%;height:130px;object-fit:cover;border-radius:14px"/><button id="dtfbtn" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.5);border:none;color:#fff;border-radius:50%;width:28px;height:28px;font-size:13px;cursor:pointer">✕</button></div>`:''}<button class="btn bo bf mt8" id="atfbtn" style="border-radius:12px">📷 ${tfoto?'Değiştir':'Fotoğraf Ekle'}</button></div><div class="fg"><label class="fl">Tarif Adı</label><input class="fi" id="tad" value="${t.ad}" placeholder="Tavuk Salatası..."></div><div class="fr"><div class="fg"><label class="fl">Kategori</label><select class="fs" id="tkat">${['Kahvaltı','Öğle','Akşam','Ara Öğün','İçecek'].map(c=>`<option ${t.kategori===c?'selected':''}>${c}</option>`).join('')}</select></div><div class="fg"><label class="fl">Süre (dk)</label><input class="fi" id="tsure" type="number" value="${t.sure}"></div></div><div class="st">Makro</div><div class="fr"><div class="fg"><label class="fl">Kalori</label><input class="fi" id="tkal" type="number" value="${t.kalori}"></div><div class="fg"><label class="fl">Protein (g)</label><input class="fi" id="tpro" type="number" value="${t.protein||''}"></div></div><div class="fr"><div class="fg"><label class="fl">Karbonhidrat (g)</label><input class="fi" id="tkar" type="number" value="${t.karbonhidrat||''}"></div><div class="fg"><label class="fl">Yağ (g)</label><input class="fi" id="tyag" type="number" value="${t.yag||''}"></div></div><div class="st">Mikro <span style="font-weight:400;font-size:11px">(opsiyonel)</span></div><div class="fr"><div class="fg"><label class="fl">Lif (g)</label><input class="fi" id="tlif" type="number" value="${t.lif||''}"></div><div class="fg"><label class="fl">C Vit. (mg)</label><input class="fi" id="tvitc" type="number" value="${t.vitamin_c||''}"></div></div><div class="fr"><div class="fg"><label class="fl">Demir (mg)</label><input class="fi" id="tdem" type="number" value="${t.demir||''}"></div><div class="fg"><label class="fl">Kalsiyum (mg)</label><input class="fi" id="tkals" type="number" value="${t.kalsiyum||''}"></div></div><div class="fg"><label class="fl">Magnezyum (mg)</label><input class="fi" id="tmag" type="number" value="${t.magnezyum||''}"></div><div class="st">Tarif</div><div class="fg"><label class="fl">Malzemeler</label><textarea class="fta" id="tmalz">${t.malzemeler}</textarea></div><div class="fg"><label class="fl">Hazırlanışı</label><textarea class="fta" id="thaz" style="min-height:110px">${t.hazirlanis}</textarea></div><div class="fg"><label class="fl">Notlar</label><textarea class="fta" id="tnot">${t.notlar||''}</textarea></div><button class="btn bl bf" id="saveTarif">${isE?'Güncelle':'Tarifi Ekle'}</button>`);
+    const tfi=document.getElementById('tarifFotoInput');
+    M.body().querySelector('#atfbtn').onclick=()=>{tfi.value='';try{tfi.click();}catch{}};
+    M.body().querySelector('#dtfbtn')?.addEventListener('click',()=>{tfoto=null;const pw=M.body().querySelector('#tfprev div');if(pw)pw.remove();M.body().querySelector('#atfbtn').textContent='📷 Fotoğraf Ekle';});
+    tfi.onchange=null;tfi.addEventListener('change',function h(e){const f=e.target.files&&e.target.files[0];if(!f)return;if(f.size>3*1024*1024){D.alert('Fotoğraf çok büyük (maks 3MB).');tfi.value='';return;}const rd=new FileReader();rd.onload=ev=>{tfoto=ev.target.result;const prev=M.body().querySelector('#tfprev');const ew=prev?.querySelector('div');if(ew)ew.remove();const w=document.createElement('div');w.style.cssText='position:relative;margin-bottom:8px';w.innerHTML=`<img src="${tfoto}" style="width:100%;height:130px;object-fit:cover;border-radius:14px"/><button id="dtfbtn" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.5);border:none;color:#fff;border-radius:50%;width:28px;height:28px;font-size:13px;cursor:pointer">✕</button>`;prev.insertBefore(w,prev.firstChild);w.querySelector('#dtfbtn').onclick=()=>{tfoto=null;w.remove();M.body().querySelector('#atfbtn').textContent='📷 Fotoğraf Ekle';};const ab=M.body().querySelector('#atfbtn');if(ab)ab.textContent='📷 Değiştir';tfi.value='';};rd.readAsDataURL(f);tfi.removeEventListener('change',h);});
+    M.body().querySelector('#saveTarif').onclick=()=>{t.ad=document.getElementById('tad').value;if(!t.ad){D.alert('Tarif adı zorunlu!');return;}t.foto=tfoto;const flds=[['kategori','tkat'],['sure','tsure'],['kalori','tkal'],['protein','tpro'],['karbonhidrat','tkar'],['yag','tyag'],['lif','tlif'],['vitamin_c','tvitc'],['demir','tdem'],['kalsiyum','tkals'],['magnezyum','tmag'],['malzemeler','tmalz'],['hazirlanis','thaz'],['notlar','tnot']];flds.forEach(([k,id])=>{const el=document.getElementById(id);if(el)t[k]=el.value;});if(isE){const idx=data.tarifler.findIndex(x=>x.id===t.id);if(idx!==-1)data.tarifler[idx]=t;}else data.tarifler.push(t);S.save(data);render(data);M.close();};
+  }
+  return{render};
+})();
+
+
+/* ===== PAGE ALIŞVERİŞ ===== */
+const PageAlisveris=(() => {
+  function render(data){
+    const el=document.getElementById('page-alisveris');const l=data.alisveris||[];const ch=l.filter(i=>i.checked).length;
+    el.innerHTML=`<div class="fb" style="margin-bottom:6px"><div style="font-size:22px;font-weight:900">Alışveriş 🛒</div><button class="btn bl bsm" id="addI">+ Ekle</button></div><div class="tm" style="margin-bottom:12px">${ch}/${l.length} tamamlandı</div>${l.length>0?`<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap"><button class="btn bo bsm" id="clrCh">✓ Yapıldıları Temizle</button><button class="btn bd bsm" id="clrAl">🗑️ Tümünü Sil</button></div>`:''}<div id="shList">${rList(data)}</div>`;
+    {const _qt=el.querySelector('#addI');if(_qt)_qt.onclick=()=>openI(data);}
+    {const _qt=el.querySelector('#clrCh');if(_qt)_qt.onclick=()=>{data.alisveris=data.alisveris.filter(i=>!i.checked);S.save(data);render(data);};}
+    {const _qt=el.querySelector('#clrAl');if(_qt)_qt.onclick=()=>D.confirm('Tüm liste silinsin mi?').then(ok=>{if(ok){data.alisveris=[];S.save(data);render(data);}});}
+    attachI(el,data);
+  }
+  function rList(data){const l=data.alisveris||[];if(!l.length)return`<div class="es"><div class="ei">🛒</div><div class="ett">Liste boş</div></div>`;const g={};l.forEach(i=>{const c=i.kategori||'Diğer';if(!g[c])g[c]=[];g[c].push(i);});return Object.entries(g).map(([cat,items])=>`<div style="margin-bottom:16px"><div class="st">${cat}</div>${items.map(i=>`<div class="shi ${i.checked?'checked':''}" data-id="${i.id}"><div class="shck ${i.checked?'checked':''}" data-id="${i.id}">${i.checked?'✓':''}</div><span class="shn" style="flex:1;font-size:15px">${i.ad}</span>${i.miktar?`<span class="tm">${i.miktar}</span>`:''}<button class="ib eitm" data-id="${i.id}" style="font-size:13px">✏️</button></div>`).join('')}</div>`).join('');}
+  function attachI(el,data){el.querySelectorAll('.shck').forEach(c=>c.onclick=()=>{const i=data.alisveris.find(x=>x.id===c.dataset.id);if(i){i.checked=!i.checked;S.save(data);el.querySelector('#shList').innerHTML=rList(data);attachI(el,data);}});el.querySelectorAll('.eitm').forEach(b=>b.onclick=e=>{e.stopPropagation();const i=data.alisveris.find(x=>x.id===b.dataset.id);if(i)openI(data,i);});}
+  function openI(data,ex){
+    const isE=!!ex,it=ex||{id:S.uid(),ad:'',miktar:'',kategori:'Market',checked:false};
+    M.open(isE?'Ürünü Düzenle':'Ürün Ekle',`<div class="fg"><label class="fl">Ürün Adı</label><input class="fi" id="sad" value="${it.ad}" placeholder="Yoğurt..."></div><div class="fr"><div class="fg"><label class="fl">Miktar</label><input class="fi" id="smik" value="${it.miktar}" placeholder="2 kg..."></div><div class="fg"><label class="fl">Kategori</label><select class="fs" id="skat">${['Market','Manav','Et & Balık','Süt & Kahvaltılık','İçecek','Temizlik','Diğer'].map(c=>`<option ${it.kategori===c?'selected':''}>${c}</option>`).join('')}</select></div></div><div style="display:flex;gap:8px"><button class="btn bl" style="flex:1" id="sI">${isE?'Güncelle':'Ekle'}</button>${isE?'<button class="btn bd" id="dI">Sil</button>':''}</div>`);
+    M.body().querySelector('#sI').onclick=()=>{const ad=document.getElementById('sad').value.trim();if(!ad){D.alert('Ürün adı zorunlu!');return;}it.ad=ad;it.miktar=document.getElementById('smik').value;it.kategori=document.getElementById('skat').value;if(isE){const idx=data.alisveris.findIndex(i=>i.id===it.id);if(idx!==-1)data.alisveris[idx]=it;}else data.alisveris.push(it);S.save(data);render(data);M.close();};
+    M.body().querySelector('#dI')?.addEventListener('click',()=>{data.alisveris=data.alisveris.filter(i=>i.id!==it.id);S.save(data);render(data);M.close();});
+  }
+  return{render};
+})();
+
+
+/* ===== PAGE AYARLAR ===== */
+const PageAyarlar=(() => {
+  const WL={kcal:'🔥 Kalori Göstergesi',oruc:'🌙 Oruç Takibi',su:'💧 Su Takibi',uyku:'🌛 Uyku Takibi',mikro:'🧪 Mikro Besinler',analiz:'📊 Vücut Analizi',foto:'📷 Fotoğraflar'};
+
+  function render(data,ra){
+    const el=document.getElementById('page-ayarlar');
+    const sg=data.settings||{},g=sg.goster||{},dk=T.get()==='dark';
+    const hist=data.olcumGecmisi||[];
+    const sira=sg.dashboardSira||['kcal','oruc','su','uyku','mikro','analiz','foto'];
+
+    el.innerHTML=`<div style="padding:0 16px"><div style="font-size:22px;font-weight:900;margin-bottom:4px;padding-top:14px">Ayarlar ⚙️</div>
+      <div class="tm" style="margin-bottom:6px">Uygulama tercihleri</div>
+
+      <div class="ss">Profil & Hesap</div>
+      <div class="card" style="padding:6px 16px">
+        ${si('👤','#ddeeff','Profil Düzenle','Ad, kilo, boy, yaş','pbtn')}
+        ${si('⚙️','#e0f5e9','Hesap & Makro','Aktivite, hedef, oranlar','hbtn')}
+      </div>
+
+      <div class="ss">Görünüm & Özellikler</div>
+      <div class="card" style="padding:6px 16px">
+        <div class="si"><div class="sil"><div class="sic" style="background:${dk?'#333':'#f0f0f0'}">🌙</div><div><div class="slbl">Karanlık Tema</div></div></div><button class="tog ${dk?'on':''}" id="dkTog"></button></div>
+        <div class="si"><div class="sil"><div class="sic" style="background:var(--lime-bg)">🌙</div><div><div class="slbl">Oruç Takibi</div></div></div><button class="tog ${g.oruc!==false?'on':''}" data-key="oruc" id="t_oruc"></button></div>
+        <div class="si"><div class="sil"><div class="sic" style="background:rgba(74,158,224,.1)">💧</div><div><div class="slbl">Su Takibi</div></div></div><button class="tog ${g.su!==false?'on':''}" data-key="su" id="t_su"></button></div>
+        <div class="si"><div class="sil"><div class="sic" style="background:rgba(139,92,246,.1)">🌛</div><div><div class="slbl">Uyku Takibi</div></div></div><button class="tog ${g.uyku!==false?'on':''}" data-key="uyku" id="t_uyku"></button></div>
+        <div class="si"><div class="sil"><div class="sic" style="background:var(--lime-bg)">🧪</div><div><div class="slbl">Mikro Besinler</div></div></div><button class="tog ${g.mikro!==false?'on':''}" data-key="mikro" id="t_mikro"></button></div>
+        <div class="si"><div class="sil"><div class="sic" style="background:rgba(92,184,0,.1)">📊</div><div><div class="slbl">Vücut Analizi</div></div></div><button class="tog ${g.analiz!==false?'on':''}" data-key="analiz" id="t_analiz"></button></div>
+        <div class="si"><div class="sil"><div class="sic" style="background:var(--bg2)">📷</div><div><div class="slbl">Fotoğraflar</div></div></div><button class="tog ${g.foto!==false?'on':''}" data-key="foto" id="t_foto"></button></div>
+      </div>
+
+      <div class="ss">Su Hedefi</div>
+      <div class="card" style="padding:14px 16px">
+        <div class="fb"><div class="slbl">Günlük: <strong>${data.su?.hedef||8} bardak</strong></div><div style="display:flex;gap:8px"><button class="btn bo bsm" id="sMn">−</button><button class="btn bl bsm" id="sPl">+</button></div></div>
+      </div>
+
+      <div class="ss">Ana Sayfa Sıralaması</div>
+      <div class="card" style="padding:12px 14px">
+        <div class="tm" style="margin-bottom:8px;font-size:12px">Basılı tutup sürükle ile sırala</div>
+        <div id="dragList">${sira.map(k=>`<div class="drit" data-key="${k}"><span class="drh">⠿</span><span style="flex:1;font-size:14px;font-weight:700">${WL[k]||k}</span></div>`).join('')}</div>
+      </div>
+
+      <div class="ss">Ölçüm Geçmişi & Grafik</div>
+      ${buildGrafik(data)}
+      <div id="histList">
+        ${hist.length===0?'<div class="tm" style="padding:12px;text-align:center">Henüz kayıt yok</div>':
+          hist.slice().reverse().map(h=>`<div class="hcard"><div><div style="font-size:15px;font-weight:800">${h.kilo} kg${h.fat?' · %'+h.fat+' yağ':''}</div><div class="tm">${h.not||''}${h.tip?' · '+h.tip:''}</div></div><div style="display:flex;align-items:center;gap:8px;text-align:right"><div style="font-size:11px;color:var(--text3);font-weight:700">${S.pd(h.tarih)}</div><button class="ib dhist" data-id="${h.id}" style="background:#ff4d4d;color:#fff;width:28px;height:28px;font-size:12px">✕</button></div></div>`).join('')}
+      </div>
+
+      <div class="ss">Veriler</div>
+      <div class="card" style="padding:6px 16px">
+        ${si('⬆️','background:var(--lime-bg)','Veriyi Dışa Aktar','JSON yedek dosyası','expbtn')}
+        ${si('⬇️','background:#fff3d0','Veriyi İçe Aktar','Yedekten geri yükle','impbtn')}
+      </div>
+      <div style="height:16px"></div></div>`;
+
+    let impInp=document.createElement('input');impInp.type='file';impInp.accept='.json';impInp.className='finh';document.getElementById('app').appendChild(impInp);
+
+    {const _qt=el.querySelector('#pbtn');if(_qt)_qt.onclick=()=>oProfil(data,()=>{ra();render(data,ra);});}
+    {const _qt=el.querySelector('#hbtn');if(_qt)_qt.onclick=()=>oHesap(data,()=>{ra();render(data,ra);});}
+    {const _qt=el.querySelector('#dkTog');if(_qt)_qt.onclick=()=>{sg.theme=T.toggle();S.save(data);render(data,ra);ra();};}
+    el.querySelectorAll('.tog[data-key]').forEach(tg=>tg.onclick=()=>{const k=tg.dataset.key;if(!sg.goster)sg.goster={};sg.goster[k]=!tg.classList.contains('on');S.save(data);render(data,ra);ra();});
+    {const _qt=el.querySelector('#sMn');if(_qt)_qt.onclick=()=>{if(!data.su)data.su={hedef:8,gecmis:{}};data.su.hedef=Math.max(1,(data.su.hedef||8)-1);S.save(data);render(data,ra);ra();};}
+    {const _qt=el.querySelector('#sPl');if(_qt)_qt.onclick=()=>{if(!data.su)data.su={hedef:8,gecmis:{}};data.su.hedef=Math.min(20,(data.su.hedef||8)+1);S.save(data);render(data,ra);ra();};}
+    {const _qt=el.querySelector('#expbtn');if(_qt)_qt.onclick=()=>S.exportJ(data);}
+    {const _qt=el.querySelector('#impbtn');if(_qt)_qt.onclick=()=>impInp.click();}
+    impInp.onchange=e=>{const f=e.target.files[0];if(!f)return;S.importJ(f,(err,parsed)=>{if(err){D.alert('Hata: '+err.message);return;}D.confirm('Mevcut veriler silinecek. Devam et?').then(ok=>{if(ok){Object.assign(data,parsed);S.save(data);ra();render(data,ra);D.alert('✅ Yedek yüklendi!','Başarılı');}});});e.target.value='';};
+    el.querySelectorAll('.dhist').forEach(b=>b.onclick=()=>D.confirm('Bu ölçüm kaydı silinsin mi?').then(ok=>{if(ok){data.olcumGecmisi=data.olcumGecmisi.filter(h=>h.id!==b.dataset.id);S.save(data);render(data,ra);}}));
+    setupDrag(el,data,ra);
+  }
+
+  function buildGrafik(data){
+    const hist=data.olcumGecmisi||[],pts=hist.filter(h=>h.kilo).slice(-10);
+    if(pts.length<2)return`<div class="ibox" style="margin-bottom:12px">📈 En az 2 ölçüm kaydedildiğinde grafik görünür.</div>`;
+    const W=310,H=100,pd=20;
+    const kv=pts.map(p=>+p.kilo),mn=Math.min(...kv),mx=Math.max(...kv)||mn+1;
+    const xS=(W-pd*2)/(pts.length-1),yP=v=>H-pd-((v-mn)/(mx-mn))*(H-pd*2);
+    const pathK=pts.map((p,i)=>(i===0?'M':'L')+`${pd+i*xS},${yP(+p.kilo)}`).join(' ');
+    const fp=pts.filter(p=>p.fat);
+    let pathF='';if(fp.length>=2){const fm=Math.min(...fp.map(p=>+p.fat)),fmx=Math.max(...fp.map(p=>+p.fat))||fm+1;pathF=`<polyline points="${fp.map(p=>`${pd+pts.indexOf(p)*xS},${yP((+p.fat-fm)/(fmx-fm)*(mx-mn)+mn)}`).join(' ')}" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round"/>`;}
+    return`<div class="card" style="margin-bottom:12px;overflow:hidden"><div style="font-size:12px;font-weight:800;color:var(--text2);margin-bottom:10px">📈 Kilo Grafiği</div><svg viewBox="0 0 ${W} ${H}" style="width:100%;overflow:visible"><polyline points="${pts.map((p,i)=>`${pd+i*xS},${yP(+p.kilo)}`).join(' ')}" fill="none" stroke="url(#limeGrad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>${pts.map((p,i)=>`<circle cx="${pd+i*xS}" cy="${yP(+p.kilo)}" r="4" fill="var(--lime2)"/>`).join('')}${pts.map((p,i)=>`<text x="${pd+i*xS}" y="${yP(+p.kilo)-8}" text-anchor="middle" font-size="9" fill="var(--text2)" font-family="Nunito,sans-serif" font-weight="700">${p.kilo}</text>`).join('')}${pathF}</svg><div style="display:flex;gap:12px;margin-top:8px"><span style="font-size:11px;font-weight:700;color:var(--lime-dark)">● Kilo</span>${fp.length>=2?'<span style="font-size:11px;font-weight:700;color:var(--purple)">● Yağ %</span>':''}</div></div>`;
+  }
+
+  function si(icon,iconStyle,label,desc,id){return`<div class="si" id="${id}"><div class="sil"><div class="sic" style="${iconStyle}">${icon}</div><div><div class="slbl">${label}</div><div class="sdesc">${desc}</div></div></div><span style="color:var(--text3);font-size:18px">▶</span></div>`;}
+
+  function setupDrag(el,data,ra){
+    const cont=el.querySelector('#dragList');if(!cont)return;
+    let drag=null,dov=null;
+    cont.querySelectorAll('.drit').forEach(item=>{
+      item.addEventListener('touchstart',e=>{drag=item;item.classList.add('dragging');},{passive:true});
+      item.addEventListener('touchmove',e=>{if(!drag)return;const t=e.touches[0];Array.from(cont.querySelectorAll('.drit:not(.dragging)')).forEach(el2=>{const r=el2.getBoundingClientRect();if(t.clientY>r.top&&t.clientY<r.bottom)dov=el2;});if(dov&&dov!==drag){const items=Array.from(cont.querySelectorAll('.drit'));cont.insertBefore(drag,items.indexOf(drag)<items.indexOf(dov)?dov.nextSibling:dov);dov=null;}},{passive:true});
+      item.addEventListener('touchend',()=>{if(drag)drag.classList.remove('dragging');const ns=Array.from(cont.querySelectorAll('.drit')).map(el2=>el2.dataset.key);data.settings.dashboardSira=ns;S.save(data);ra();drag=null;dov=null;});
+    });
+  }
+
+  function oProfil(data,cb){
+    const p=data.profil;
+    M.open('Profil Düzenle',`<div class="fg"><label class="fl">Ad Soyad</label><input class="fi" id="fad" value="${p.ad||''}"></div><div class="fr"><div class="fg"><label class="fl">Kilo (kg)</label><input class="fi" id="fkilo" type="number" value="${p.kilo||''}"></div><div class="fg"><label class="fl">Hedef Kilo (kg)</label><input class="fi" id="fhkilo" type="number" value="${p.hedefKilo||''}"></div></div><div class="fg"><label class="fl">Başlangıç Kilosu (kg)</label><input class="fi" id="fbkilo" type="number" value="${p.baslangicKilo||p.kilo||''}"><div style="font-size:11px;color:#bbb;margin-top:3px">İlerleme çubuğu için</div></div><div class="fr"><div class="fg"><label class="fl">Boy (cm)</label><input class="fi" id="fboy" type="number" value="${p.boy||''}"></div><div class="fg"><label class="fl">Yaş</label><input class="fi" id="fyas" type="number" value="${p.yas||''}"></div></div><div class="fg"><label class="fl">Cinsiyet</label><select class="fs" id="fcins"><option ${p.cinsiyet==='Erkek'?'selected':''}>Erkek</option><option ${p.cinsiyet==='Kadın'?'selected':''}>Kadın</option></select></div><button class="btn bl bf" id="sProf">Kaydet</button>`);
+    M.body().querySelector('#sProf').onclick=()=>{p.ad=document.getElementById('fad').value;p.kilo=document.getElementById('fkilo').value;p.hedefKilo=document.getElementById('fhkilo').value;p.baslangicKilo=document.getElementById('fbkilo').value;p.boy=document.getElementById('fboy').value;p.yas=document.getElementById('fyas').value;p.cinsiyet=document.getElementById('fcins').value;if(!p.manuelMod){const calc=C.hesapla(p);if(calc)['kalori','protein','karbonhidrat','yag','lif','vitamin_c','demir','kalsiyum','magnezyum'].forEach(k=>{data.macros[k]=calc[k];});}S.save(data);cb&&cb();M.close();};
+  }
+
+  function oHesap(data,cb){
+    const p=data.profil;
+    M.open('Hesap & Makro',`<div class="fg"><label class="fl">Aktivite</label><select class="fs" id="hakt">${Object.entries(C.aLabels).map(([v,l])=>`<option value="${v}" ${p.aktivite===v?'selected':''}>${l}</option>`).join('')}</select></div><div class="fg"><label class="fl">Hedef</label><select class="fs" id="hhdf">${Object.entries(C.hLabels).map(([v,l])=>`<option value="${v}" ${p.hedef===v?'selected':''}>${l}</option>`).join('')}</select></div><div class="fr"><div class="fg"><label class="fl">Protein (g/kg)</label><select class="fs" id="hpro"><option value="1.6" ${p.proteinOrani==='1.6'?'selected':''}>1.6</option><option value="2.0" ${p.proteinOrani==='2.0'?'selected':''}>2.0</option><option value="2.2" ${p.proteinOrani==='2.2'?'selected':''}>2.2</option></select></div><div class="fg"><label class="fl">Yağ (g/kg)</label><select class="fs" id="hyag"><option value="0.8" ${p.yagOrani==='0.8'?'selected':''}>0.8</option><option value="0.9" ${p.yagOrani==='0.9'?'selected':''}>0.9</option><option value="1.0" ${p.yagOrani==='1.0'?'selected':''}>1.0</option></select></div></div><div class="fg"><div style="display:flex;gap:10px"><button class="btn ${!p.manuelMod?'bl':'bo'} bsm" id="autoM">🤖 Otomatik</button><button class="btn ${p.manuelMod?'bl':'bo'} bsm" id="manM">✏️ Manuel</button></div></div><div id="onizleme"></div><button class="btn bl bf" id="sHes">Uygula</button>`);
+    let mfl=p.manuelMod;
+    M.body().querySelector('#autoM').onclick=()=>{mfl=false;M.body().querySelector('#autoM').className='btn bl bsm';M.body().querySelector('#manM').className='btn bo bsm';};
+    M.body().querySelector('#manM').onclick=()=>{mfl=true;M.body().querySelector('#manM').className='btn bl bsm';M.body().querySelector('#autoM').className='btn bo bsm';};
+    function gunc(){const tmp={...data.profil,aktivite:document.getElementById('hakt').value,hedef:document.getElementById('hhdf').value,proteinOrani:document.getElementById('hpro').value,yagOrani:document.getElementById('hyag').value};const calc=C.hesapla(tmp);if(calc)document.getElementById('onizleme').innerHTML=`<div class="bmrb" style="margin-bottom:12px"><div style="font-size:11px;opacity:.6;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Önizleme</div><div style="display:flex;justify-content:space-between;padding:2px 0"><span style="font-size:13px;opacity:.8">Hedef Kalori</span><span style="font-size:16px;font-weight:900">${calc.kalori} kcal</span></div><div style="display:flex;justify-content:space-between;padding:2px 0"><span style="font-size:13px;opacity:.8">P / K / Y</span><span style="font-size:14px;font-weight:900">${calc.protein}g / ${calc.karbonhidrat}g / ${calc.yag}g</span></div></div>`;}
+    ['hakt','hhdf','hpro','hyag'].forEach(id=>document.getElementById(id)?.addEventListener('change',gunc));
+    gunc();
+    M.body().querySelector('#sHes').onclick=()=>{p.aktivite=document.getElementById('hakt').value;p.hedef=document.getElementById('hhdf').value;p.proteinOrani=document.getElementById('hpro').value;p.yagOrani=document.getElementById('hyag').value;p.manuelMod=mfl;if(!mfl){const calc=C.hesapla(p);if(calc)['kalori','protein','karbonhidrat','yag','lif','vitamin_c','demir','kalsiyum','magnezyum'].forEach(k=>{data.macros[k]=calc[k];});}S.save(data);cb&&cb();M.close();};
+  }
+
+  return{render,openHesap:oHesap};
+})();
+
+
+
+/* ===== APP INIT ===== */
+document.addEventListener('DOMContentLoaded',function(){
+  var data=S.load();
+  T.init(data.settings?data.settings.theme||'light':'light');
+
+  function updateHeader(){
+    var p=data.profil||{};
+    var ne=document.getElementById('hNameEl');
+    var we=document.getElementById('hWeightEl');
+    var te=document.getElementById('hTargetEl');
+    var pb=document.getElementById('hpbarFill');
+    if(ne)ne.textContent=p.ad?'Merhaba, '+p.ad+'! 👋':'Merhaba! 👋';
+    if(we)we.textContent=p.kilo||'—';
+    if(te)te.textContent=p.hedefKilo||'—';
+    if(pb){
+      var kilo=parseFloat(p.kilo)||0;
+      var hedef=parseFloat(p.hedefKilo)||0;
+      var baslangic=parseFloat(p.baslangicKilo)||kilo;
+      var pct=0;
+      if(hedef>0&&baslangic!==hedef){
+        var total=Math.abs(baslangic-hedef);
+        var done=Math.abs(baslangic-kilo);
+        pct=Math.min(100,Math.max(0,Math.round((done/total)*100)));
+      }
+      pb.style.width=pct+'%';
+    }
+  }
+
+  function ra(){
+    data=S.load();
+    updateHeader();
+    try{PageAna.render(data);}catch(e){console.error('PageAna error:',e);}
+    try{PageSpor.render(data);}catch(e){console.error('PageSpor error:',e);}
+    try{PageTarifler.render(data);}catch(e){console.error('PageTarifler error:',e);}
+    try{PageAlisveris.render(data);}catch(e){console.error('PageAlisveris error:',e);}
+    try{PageAyarlar.render(data,ra);}catch(e){console.error('PageAyarlar error:',e);}
+  }
+  ra();
+
+  document.querySelectorAll('.nav-btn').forEach(function(btn){
+    btn.onclick=function(){
+      document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active');});
+      btn.classList.add('active');
+      document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+      document.getElementById('page-'+btn.dataset.page).classList.add('active');
+    };
+  });
+
+  document.getElementById('settingsBtn').onclick=function(){
+    document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active');});
+    document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+    document.getElementById('page-ayarlar').classList.add('active');
+    PageAyarlar.render(data,ra);
+  };
+});
+
+</script>
+</body>
+</html>
