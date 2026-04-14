@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-<link rel="apple-touch-icon" id="ati" sizes="180x180" href="Logo.png"/>
+<link rel="apple-touch-icon" id="ati" sizes="180x180" href=""/>
 <link rel="icon" id="favi" type="image/png" href=""/>
 <title>FitApp</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Nunito+Sans:wght@300;400;600&display=swap" rel="stylesheet"/>
@@ -40,6 +40,7 @@ body{font-family:'Nunito',sans-serif;background:#f2f2f2;color:#1a1a1a;min-height
 .page{position:absolute;inset:0;overflow-y:auto;opacity:0;pointer-events:none;transform:translateY(5px);transition:opacity .2s ease,transform .2s ease;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:calc(10px + 68px)}
 .page::-webkit-scrollbar{display:none}
 .page.active{opacity:1;pointer-events:all;transform:translateY(0)}
+#page-ana{background:#fff;}
 /* MODAL */
 .mov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
 .mov.hidden{display:none}
@@ -312,34 +313,119 @@ const S=(() => {
 
 /* ===== CALC ===== */
 const C=(() => {
-  const aL={'1.2':'Masa Başı','1.375':'Hafif Aktif','1.55':'Orta Aktif','1.725':'Çok Aktif','1.9':'Ekstra Aktif'};
-  const hL={'vermek500':'Kilo Ver (-500)','vermek300':'Kilo Ver (-300)','koruma':'Koru (TDEE)','almak300':'Kilo Al (+300)','almak500':'Kilo Al (+500)'};
-  function bmr(k,b,y,c){if(!k||!b||!y)return null;return c==='Erkek'?Math.round(10*+k+6.25*+b-5*+y+5):Math.round(10*+k+6.25*+b-5*+y-161);}
-  function hesapla(p){const b=bmr(p.kilo,p.boy,p.yas,p.cinsiyet);if(!b)return null;const t=Math.round(b*(+(p.aktivite||'1.55')));const hm={vermek500:-500,vermek300:-300,koruma:0,almak300:300,almak500:500};const kcal=t+(hm[p.hedef||'koruma']||0);const pr=Math.round((+p.kilo)*(+(p.proteinOrani||'2.0')));const ya=Math.round((+p.kilo)*(+(p.yagOrani||'0.9')));const ka=Math.max(0,Math.round((kcal-(pr*4)-(ya*9))/4));const e=p.cinsiyet==='Erkek';return{bmr:b,tdee:t,kalori:kcal,protein:pr,yag:ya,karbonhidrat:ka,lif:e?38:25,vitamin_c:e?90:75,demir:e?8:18,kalsiyum:1000,magnezyum:e?420:320};}
-  function ogt(og){const t={kalori:0,protein:0,karbonhidrat:0,yag:0,lif:0,vitamin_c:0,demir:0,kalsiyum:0,magnezyum:0};(og||[]).forEach(o=>Object.keys(t).forEach(k=>{t[k]+=+(o[k]||0);}));return t;}
-  function rc(key){const dk=document.documentElement.getAttribute('data-theme')==='dark';const m={blue:dk?'#4a9ee0':'#1a6fb5',green:dk?'#5cb800':'#2d8a4e',yellow:dk?'#f0a830':'#c47d00',red:dk?'#ff6b6b':'#e53935',purple:dk?'#a78bfa':'#7c3aed',lime:'#7aaa00'};return m[key]||m.lime;}
-  function vag(p,o){
-    const{kilo,boy,cinsiyet}=p;const{bel,boyun,kalca,gogus,bacak,omuz}=o;
-    if(!kilo||!boy||!bel||!boyun)return null;
-    const h=+boy,w=+kilo,wa=+bel,ne=+boyun,hi=+(kalca||0),ch=+(gogus||0),th=+(bacak||0),sh=+(omuz||0);
-    const K=cinsiyet==='Erkek'?1:0;if(K===0&&!hi)return null;
-    const l=x=>Math.log(x)/Math.log(10);const bmi=w/Math.pow(h/100,2);
-    let N=K===1?86.010*l(wa-ne)-70.041*l(h)+36.76:163.205*l(wa+hi-ne)-97.684*l(h)-78.387;
-    const Dv=(25*wa/h)-(15*ne/h)-(10*sh/h)+(8*(1-K)*hi/h)-(6*ch/h)+(4*th/h);
-    let fat=Math.max(3,Math.min(60,(0.6*N)+(0.25*(1.20*bmi-10.8*K-5.4))+(0.15*Dv)));
-    const bb=wa/h;
-    let tip,ta,tr;
-    if(K===1){if(bmi<20&&fat<12){tip='Ektomorf';ta='İnce yapı, düşük yağ.';tr=rc('blue');}else if(bmi>=19&&bmi<=25&&fat>=10&&fat<=20){tip='Mezomorf';ta='Atletik yapı, dengeli oran.';tr=rc('green');}else{tip='Endomorf';ta='Yağ depolama eğilimi yüksek.';tr=rc('yellow');}}
-    else{if(bmi<19&&fat<18){tip='Ektomorf';ta='İnce yapı.';tr=rc('blue');}else if(bmi>=19&&bmi<=24&&fat>=18&&fat<=28){tip='Mezomorf';ta='Atletik yapı.';tr=rc('green');}else{tip='Endomorf';ta='Yağ eğilimi yüksek.';tr=rc('yellow');}}
-    const arl=K===1?{alt:8,ia:10,iu:20,ust:25}:{alt:14,ia:18,iu:28,ust:35};
-    let sd,sr;if(fat<=arl.alt){sd='Çok Düşük';sr=rc('blue');}else if(fat<=arl.iu){sd='Sağlıklı ✓';sr=rc('green');}else if(fat<=arl.ust){sd='Yüksek';sr=rc('yellow');}else{sd='Çok Yüksek';sr=rc('red');}
-    let bk,br;if(bmi<18.5){bk='Zayıf';br=rc('blue');}else if(bmi<25){bk='Normal ✓';br=rc('green');}else if(bmi<30){bk='Fazla Kilolu';br=rc('yellow');}else{bk='Obez';br=rc('red');}
-    let bbk,bbr;if(bb<0.4){bbk='Çok İnce';bbr=rc('blue');}else if(bb<0.5){bbk='Sağlıklı ✓';bbr=rc('green');}else if(bb<0.6){bbk='Risk Altında';bbr=rc('yellow');}else{bbk='Yüksek Risk';bbr=rc('red');}
-    return{fat:+fat.toFixed(1),bmi:+bmi.toFixed(1),belBoy:+bb.toFixed(3),tip,tipAciklama:ta,tipRenk:tr,saglikDurum:sd,saglikRenk:sr,bmiKat:bk,bmiRenk:br,bbKat:bbk,bbRenk:bbr,arl,K};
-  }
-  return{hesapla,aLabels:aL,hLabels:hL,ogt,vag};
-})();
+  const aL={'1.2':'Masa Başı (x1.2)','1.375':'Hafif Aktif (x1.375)','1.55':'Orta Aktif (x1.55)','1.725':'Çok Aktif (x1.725)','1.9':'Aşırı Aktif (x1.9)'};
+  const hL={'kilo_kay_25':'Yağ Kaybı (-25%)','kilo_kay_15':'Yağ Kaybı (-15%)','kilo_kay_10':'Yağ Kaybı (-10%)','koruma':'Kilo Koruma','kas_5':'Kas Kazanımı (+5%)','kas_10':'Kas Kazanımı (+10%)','kas_20':'Kas Kazanımı (+20%)'};
 
+  function bmr(kilo,boy,yas,cins){
+    if(!kilo||!boy||!yas)return null;
+    var k=+kilo,b=+boy,y=+yas;
+    // Mifflin-St Jeor
+    return cins==='Erkek'
+      ? Math.round(10*k + 6.25*b - 5*y + 5)
+      : Math.round(10*k + 6.25*b - 5*y - 161);
+  }
+
+  function hesapla(p){
+    var b=bmr(p.kilo,p.boy,p.yas,p.cinsiyet);
+    if(!b)return null;
+    var akt=+(p.aktivite||'1.55');
+    var tdee=Math.round(b*akt);
+    // Hedefe göre kalori ayarı
+    var hedefOranlar={
+      'kilo_kay_25': -0.25,
+      'kilo_kay_15': -0.15,
+      'kilo_kay_10': -0.10,
+      'koruma':       0,
+      'kas_5':       +0.05,
+      'kas_10':      +0.10,
+      'kas_20':      +0.20
+    };
+    var oran=hedefOranlar[p.hedef||'koruma']||0;
+    var kalori=Math.round(tdee*(1+oran));
+    // Protein: g/kg (user-set, default varies by gender)
+    var proOran=+(p.proteinOrani||'2.0');
+    var protein=Math.round(+p.kilo * proOran);
+    // Yağ: g/kg (minimum 0.8)
+    var yagOran=+(p.yagOrani||'1.0');
+    var yag=Math.round(+p.kilo * Math.max(0.8, yagOran));
+    // Karb: kalan kalori
+    var proteinKcal=protein*4;
+    var yagKcal=yag*9;
+    var karbKcal=Math.max(0, kalori - proteinKcal - yagKcal);
+    var karb=Math.round(karbKcal/4);
+    // Mikro
+    var e=p.cinsiyet==='Erkek';
+    return{
+      bmr:b, tdee:tdee, kalori:kalori,
+      protein:protein, yag:yag, karbonhidrat:karb,
+      lif:e?38:25, vitamin_c:e?90:75, demir:e?8:18,
+      kalsiyum:1000, magnezyum:e?420:320
+    };
+  }
+
+  function ogt(og){
+    var t={kalori:0,protein:0,karbonhidrat:0,yag:0,lif:0,vitamin_c:0,demir:0,kalsiyum:0,magnezyum:0};
+    (og||[]).forEach(function(o){Object.keys(t).forEach(function(k){t[k]+= +(o[k]||0);});});
+    return t;
+  }
+
+  function rc(key){
+    var dk=document.documentElement.getAttribute('data-theme')==='dark';
+    var m={blue:dk?'#4a9ee0':'#1a6fb5',green:dk?'#5cb800':'#2d8a4e',yellow:dk?'#f0a830':'#c47d00',red:dk?'#ff6b6b':'#e53935',purple:dk?'#a78bfa':'#7c3aed',lime:'#7aaa00'};
+    return m[key]||m.lime;
+  }
+
+  function vag(p,o){
+    var kilo=p.kilo,boy=p.boy,cinsiyet=p.cinsiyet;
+    var bel=o.bel,boyun=o.boyun,kalca=o.kalca;
+    if(!kilo||!boy||!bel||!boyun)return null;
+    var h=+boy,w=+kilo,wa=+bel,ne=+boyun,hi=+(kalca||0);
+    var K=cinsiyet==='Erkek'?1:0;
+    if(K===0&&!hi)return null;
+    var l10=function(x){return Math.log(x)/Math.log(10);};
+    var bmi=w/Math.pow(h/100,2);
+    // US Navy formulas (log10 based)
+    var fat;
+    if(K===1){
+      fat=86.010*l10(wa-ne) - 70.041*l10(h) + 36.76;
+    } else {
+      fat=163.205*l10(wa+hi-ne) - 97.684*l10(h) - 78.387;
+    }
+    fat=Math.max(3,Math.min(60,fat));
+    var bb=wa/h;
+    var tip,ta,tr;
+    if(K===1){
+      if(bmi<20&&fat<12){tip='Ektomorf';ta='İnce yapı, düşük yağ.';tr=rc('blue');}
+      else if(bmi>=19&&bmi<=25&&fat>=10&&fat<=20){tip='Mezomorf';ta='Atletik yapı, dengeli oran.';tr=rc('green');}
+      else{tip='Endomorf';ta='Yağ depolama eğilimi yüksek.';tr=rc('yellow');}
+    } else {
+      if(bmi<19&&fat<18){tip='Ektomorf';ta='İnce yapı.';tr=rc('blue');}
+      else if(bmi>=19&&bmi<=24&&fat>=18&&fat<=28){tip='Mezomorf';ta='Atletik yapı.';tr=rc('green');}
+      else{tip='Endomorf';ta='Yağ eğilimi yüksek.';tr=rc('yellow');}
+    }
+    var arl=K===1?{alt:8,ia:10,iu:20,ust:25}:{alt:14,ia:18,iu:28,ust:35};
+    var sd,sr;
+    if(fat<=arl.alt){sd='Çok Düşük';sr=rc('blue');}
+    else if(fat<=arl.iu){sd='Sağlıklı ✓';sr=rc('green');}
+    else if(fat<=arl.ust){sd='Yüksek';sr=rc('yellow');}
+    else{sd='Çok Yüksek';sr=rc('red');}
+    var bk,br;
+    if(bmi<18.5){bk='Zayıf';br=rc('blue');}
+    else if(bmi<25){bk='Normal ✓';br=rc('green');}
+    else if(bmi<30){bk='Fazla Kilolu';br=rc('yellow');}
+    else{bk='Obez';br=rc('red');}
+    var bbk,bbr;
+    if(bb<0.4){bbk='Çok İnce';bbr=rc('blue');}
+    else if(bb<0.5){bbk='Sağlıklı ✓';bbr=rc('green');}
+    else if(bb<0.6){bbk='Risk Altında';bbr=rc('yellow');}
+    else{bbk='Yüksek Risk';bbr=rc('red');}
+    return{fat:+fat.toFixed(1),bmi:+bmi.toFixed(1),belBoy:+bb.toFixed(3),
+      tip:tip,tipAciklama:ta,tipRenk:tr,
+      saglikDurum:sd,saglikRenk:sr,
+      bmiKat:bk,bmiRenk:br,bbKat:bbk,bbRenk:bbr,arl:arl,K:K};
+  }
+  return{hesapla:hesapla,aLabels:aL,hLabels:hL,ogt:ogt,vag:vag};
+})();
 
 /* ===== THEME ===== */
 const T=(() => {
@@ -579,13 +665,69 @@ const PageAna=(() => {
     ringBarsRow.style.cssText='display:flex;align-items:center;gap:16px';
     var ringEl=document.createElement('div');
     drawRing(ringEl,kcalPct,'Kcal',kcalKalan.toLocaleString('tr'),'Remaining','#c8f500');
+    if(isManuel){
+      // Make the big number in ring clickable to edit kalori target
+      setTimeout(function(){
+        var ringCenter=ringEl.querySelector('div');
+        if(ringCenter){
+          var bigNum=ringCenter.children[1];
+          if(bigNum){
+            bigNum.title='Kalori hedefini düzenle';
+            bigNum.style.cssText+='cursor:pointer;text-decoration:none;border-bottom:2px dashed #c8f500';
+            bigNum.onclick=function(){
+              D.prompt('Hedef Kalori (kcal)','2200',String(m.kalori||2200),'Kalori Hedefi').then(function(v){
+                if(v&&!isNaN(v)){data.macros.kalori=+v;S.save(data);render(data);}
+              });
+            };
+          }
+        }
+      },0);
+    }
     var barsWrap=document.createElement('div');
     barsWrap.style.cssText='flex:1;display:flex;flex-direction:column;gap:9px';
-    var carbBar=document.createElement('div'),proBar=document.createElement('div'),fatBar=document.createElement('div');
-    drawMacroBar(carbBar,'Carb','#ff4d4d',yn.karbonhidrat||0,m.karbonhidrat||250);
-    drawMacroBar(proBar,'Protein','#4a9ee0',yn.protein||0,m.protein||160);
-    drawMacroBar(fatBar,'Fat','#ff9500',yn.yag||0,m.yag||65);
-    barsWrap.appendChild(carbBar);barsWrap.appendChild(proBar);barsWrap.appendChild(fatBar);
+    if(!isManuel){
+      var carbBar=document.createElement('div'),proBar=document.createElement('div'),fatBar=document.createElement('div');
+      drawMacroBar(carbBar,'Carb','#ff4d4d',yn.karbonhidrat||0,m.karbonhidrat||250);
+      drawMacroBar(proBar,'Protein','#4a9ee0',yn.protein||0,m.protein||160);
+      drawMacroBar(fatBar,'Fat','#ff9500',yn.yag||0,m.yag||65);
+      barsWrap.appendChild(carbBar);barsWrap.appendChild(proBar);barsWrap.appendChild(fatBar);
+    } else {
+      // Manuel: identical to auto layout, only hedef value is editable
+      var manItems=[
+        ['Carb','karbonhidrat','#ff4d4d',m.karbonhidrat||250,yn.karbonhidrat||0],
+        ['Protein','protein','#4a9ee0',m.protein||160,yn.protein||0],
+        ['Fat','yag','#ff9500',m.yag||65,yn.yag||0]
+      ];
+      manItems.forEach(function(f){
+        var d2=document.createElement('div');d2.style.cssText='margin-bottom:10px';
+        // Top row: name left, "eaten/INPUT" right — no underline, same font as auto
+        var topRow=document.createElement('div');
+        topRow.style.cssText='display:flex;justify-content:space-between;align-items:center;margin-bottom:3px';
+        var nameLbl=document.createElement('span');
+        nameLbl.style.cssText='font-size:12px;color:#666;font-weight:600';
+        nameLbl.textContent=f[0];
+        var valWrap=document.createElement('div');valWrap.style.cssText='display:flex;align-items:center';
+        var consumed=document.createElement('span');
+        consumed.style.cssText='font-size:12px;font-weight:800;color:'+f[2];
+        consumed.textContent=f[4]+'/';
+        var inp=document.createElement('input');
+        inp.type='number';inp.value=f[3];inp.dataset.macro=f[1];
+        // Styled exactly like the static text — no border, no background, no underline
+        inp.style.cssText='width:46px;padding:0;background:transparent;border:none;font-size:12px;font-weight:800;color:'+f[2]+';outline:none;text-align:left;font-family:Nunito,sans-serif;-webkit-appearance:none;appearance:none';
+        inp.addEventListener('change',function(){data.macros[this.dataset.macro]=+(this.value)||0;S.save(data);});
+        valWrap.appendChild(consumed);valWrap.appendChild(inp);
+        topRow.appendChild(nameLbl);topRow.appendChild(valWrap);
+        // Bar — identical to auto
+        var pct=f[3]?Math.min(Math.round((f[4]/f[3])*100),100):0;
+        var barBg=document.createElement('div');
+        barBg.style.cssText='background:#ebebeb;border-radius:100px;height:6px;overflow:hidden';
+        var barFill=document.createElement('div');
+        barFill.style.cssText='height:100%;width:'+pct+'%;background:'+f[2]+';border-radius:100px;transition:width .5s ease';
+        barBg.appendChild(barFill);
+        d2.appendChild(topRow);d2.appendChild(barBg);
+        barsWrap.appendChild(d2);
+      });
+    }
     ringBarsRow.appendChild(ringEl);ringBarsRow.appendChild(barsWrap);
     wrap.appendChild(ringBarsRow);
 
@@ -881,7 +1023,7 @@ const PageAna=(() => {
 
   function buildMeals(m,ogunler){
     var wrap=document.createElement('div');
-    wrap.style.cssText='background:linear-gradient(160deg,#c8f500 0%,#aadd00 55%,#aacc00 100%);border-radius:18px 18px 0 0;padding:14px 16px 0;margin-top:4px';
+    wrap.style.cssText='background:linear-gradient(160deg,#c8f500 0%,#aadd00 55%,#aacc00 100%);border-radius:18px;padding:14px 16px 10px;margin:4px 14px 8px';
     var addBtn=document.createElement('button');
     addBtn.id='amBtn';addBtn.textContent='+ Öğün Ekle';
     addBtn.style.cssText='width:100%;background:#fff;border:none;border-radius:100px;padding:14px;font-size:15px;font-weight:800;color:#1a1a1a;box-shadow:0 4px 14px rgba(0,0,0,.1);cursor:pointer;margin-bottom:10px';
@@ -898,7 +1040,7 @@ const PageAna=(() => {
       row.appendChild(nameEl);row.appendChild(kcalEl);
       wrap.appendChild(row);
     });
-    var spacer=document.createElement('div');spacer.style.height='10px';wrap.appendChild(spacer);
+    
     return wrap;
   }
 
@@ -1146,7 +1288,7 @@ const PageAyarlar=(() => {
 
   function oHesap(data,cb){
     const p=data.profil;
-    M.open('Hesap & Makro',`<div class="fg"><label class="fl">Aktivite</label><select class="fs" id="hakt">${Object.entries(C.aLabels).map(([v,l])=>`<option value="${v}" ${p.aktivite===v?'selected':''}>${l}</option>`).join('')}</select></div><div class="fg"><label class="fl">Hedef</label><select class="fs" id="hhdf">${Object.entries(C.hLabels).map(([v,l])=>`<option value="${v}" ${p.hedef===v?'selected':''}>${l}</option>`).join('')}</select></div><div class="fr"><div class="fg"><label class="fl">Protein (g/kg)</label><select class="fs" id="hpro"><option value="1.6" ${p.proteinOrani==='1.6'?'selected':''}>1.6</option><option value="2.0" ${p.proteinOrani==='2.0'?'selected':''}>2.0</option><option value="2.2" ${p.proteinOrani==='2.2'?'selected':''}>2.2</option></select></div><div class="fg"><label class="fl">Yağ (g/kg)</label><select class="fs" id="hyag"><option value="0.8" ${p.yagOrani==='0.8'?'selected':''}>0.8</option><option value="0.9" ${p.yagOrani==='0.9'?'selected':''}>0.9</option><option value="1.0" ${p.yagOrani==='1.0'?'selected':''}>1.0</option></select></div></div><div class="fg"><div style="display:flex;gap:10px"><button class="btn ${!p.manuelMod?'bl':'bo'} bsm" id="autoM">🤖 Otomatik</button><button class="btn ${p.manuelMod?'bl':'bo'} bsm" id="manM">✏️ Manuel</button></div></div><div id="onizleme"></div><button class="btn bl bf" id="sHes">Uygula</button>`);
+    M.open('Hesap & Makro',`<div class="fg"><label class="fl">Aktivite</label><select class="fs" id="hakt">${Object.entries(C.aLabels).map(([v,l])=>`<option value="${v}" ${p.aktivite===v?'selected':''}>${l}</option>`).join('')}</select></div><div class="fg"><label class="fl">Hedef</label><select class="fs" id="hhdf">${Object.entries(C.hLabels).map(function(e){var v=e[0],l=e[1];return'<option value="'+v+'" '+(p.hedef===v?'selected':'')+'>'+l+'</option>';}).join('')}</select></div><div class="fr"><div class="fg"><label class="fl">Protein (g/kg)</label><select class="fs" id="hpro"><option value="1.2" ${p.proteinOrani==='1.2'?'selected':''}>1.2 g/kg</option><option value="1.6" ${p.proteinOrani==='1.6'?'selected':''}>1.6 g/kg</option><option value="2.0" ${p.proteinOrani==='2.0'?'selected':''}>2.0 g/kg</option><option value="2.2" ${p.proteinOrani==='2.2'?'selected':''}>2.2 g/kg</option></select></div><div class="fg"><label class="fl">Yağ (g/kg)</label><select class="fs" id="hyag"><option value="0.8" ${p.yagOrani==='0.8'?'selected':''}>0.8 g/kg (min)</option><option value="1.0" ${p.yagOrani==='1.0'?'selected':''}>1.0 g/kg</option><option value="1.2" ${p.yagOrani==='1.2'?'selected':''}>1.2 g/kg</option></select></div></div><div class="fg"><div style="display:flex;gap:10px"><button class="btn ${!p.manuelMod?'bl':'bo'} bsm" id="autoM">🤖 Otomatik</button><button class="btn ${p.manuelMod?'bl':'bo'} bsm" id="manM">✏️ Manuel</button></div></div><div id="onizleme"></div><button class="btn bl bf" id="sHes">Uygula</button>`);
     let mfl=p.manuelMod;
     M.body().querySelector('#autoM').onclick=()=>{mfl=false;M.body().querySelector('#autoM').className='btn bl bsm';M.body().querySelector('#manM').className='btn bo bsm';};
     M.body().querySelector('#manM').onclick=()=>{mfl=true;M.body().querySelector('#manM').className='btn bl bsm';M.body().querySelector('#autoM').className='btn bo bsm';};
@@ -1184,8 +1326,10 @@ document.addEventListener('DOMContentLoaded',function(){
         var total=Math.abs(baslangic-hedef);
         var done=Math.abs(baslangic-kilo);
         pct=Math.min(100,Math.max(0,Math.round((done/total)*100)));
+      } else if(hedef>0&&kilo>0&&kilo<=hedef){
+        pct=100;
       }
-      pb.style.width=pct+'%';
+      pb.style.width=(pct>0?Math.max(pct,3):0)+'%';
     }
   }
 
